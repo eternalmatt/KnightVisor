@@ -3,7 +3,7 @@ function [ g ] = tron ( f )
 edges = sobel(f);
 
 [R,C] = size(f);
-g = zeros(R,C,3);
+g = uint8(zeros(R,C,3));
 
 for r = 1:R
 for c = 1:C
@@ -17,4 +17,4 @@ end
 end
 
 figure;
-imshow(uint8(g));
+imshow(g);
