@@ -1,84 +1,108 @@
 package edu.uncc.cci.KnightVisor;
 
-import java.io.IOException;
-
 import android.app.Activity;
 import android.hardware.Camera;
-import android.media.SoundPool;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
-public class KnightVisorActivity extends Activity implements SurfaceHolder.Callback {
-    
-	private Camera camera;
-	private SurfaceView cameraView;
-	private FrameLayout frameLayout;
+public class KnightVisorActivity extends Activity {
 
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    private SurfaceView preview = null;
+    private SurfaceHolder previewHolder = null;
+    private Camera camera = null;
+    private boolean inPreview = false;
+    private boolean cameraConfigured = false;
 
-		// Get the entire screen
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
 
-		// Create the surface for the camera to draw its preview on
-		cameraView = new SurfaceView(this);
-		cameraView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		cameraView.getHolder().addCallback(this);
+        preview = (SurfaceView) findViewById(R.id.preview);
+        previewHolder = preview.getHolder();
+        previewHolder.addCallback(surfaceCallback);
+        previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+    }
 
-		// Setup the layout where the cameraView is completely obscured by the edgeView
-		frameLayout = new FrameLayout(this);
-		frameLayout.addView(cameraView);
-		setContentView(frameLayout);
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		stopCameraPreview();
-	}
+        camera = Camera.open();
+        startPreview();
+    }
 
-	private void stopCameraPreview() {
-		if (camera != null) {
-			camera.setPreviewCallback(null);
-			camera.stopPreview();
-			camera.release();
-			camera = null;
-		}
-	}
+    @Override
+    public void onPause() {
+        if (inPreview) {
+            camera.stopPreview();
+        }
 
-	private void startCameraPreview() {
-		try {
-			camera = Camera.open();
-			camera.setPreviewDisplay(cameraView.getHolder());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (RuntimeException e) {
-			e.printStackTrace();
-			Toast.makeText(this, "Camera is not available", Toast.LENGTH_LONG).show();
-		}
-	}
+        camera.release();
+        camera = null;
+        inPreview = false;
 
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-		if (camera != null)
-		{
-			Camera.Parameters parameters = camera.getParameters();
-			parameters.setPreviewSize(width, height); // TODO: check that width, height are a valid camera preview size
-			camera.setParameters(parameters);
-			camera.startPreview();
-		}
-	}
+        super.onPause();
+    }
 
-	public void surfaceCreated(SurfaceHolder holder) {
-		startCameraPreview();
-	}
+    private Camera.Size getBestPreviewSize(int width, int height, Camera.Parameters parameters) {
+        Camera.Size result = null;
 
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		stopCameraPreview();
-	}
+        for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
+            if (size.width <= width && size.height <= height) {
+                if (result == null || size.width * size.height > result.width * result.height) {
+                    result = size;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void initPreview(int width, int height) {
+        if (camera != null && previewHolder.getSurface() != null) {
+            try {
+                camera.setPreviewDisplay(previewHolder);
+            } catch (Throwable t) {
+                Log.e("PreviewDemo-surfaceCallback", "Exception in setPreviewDisplay()", t);
+                Toast.makeText(this, t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
+            if (!cameraConfigured) {
+                Camera.Parameters parameters = camera.getParameters();
+                Camera.Size size = getBestPreviewSize(width, height, parameters);
+
+                if (size != null) {
+                    parameters.setPreviewSize(size.width, size.height);
+                    camera.setParameters(parameters);
+                    cameraConfigured = true;
+                }
+            }
+        }
+    }
+
+    private void startPreview() {
+        if (cameraConfigured && camera != null) {
+            camera.startPreview();
+            inPreview = true;
+        }
+    }
+
+    SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
+        public void surfaceCreated(SurfaceHolder holder) { /* wait until
+                                                            * surfaceChanged */
+        }
+
+        public void surfaceDestroyed(SurfaceHolder holder) { /* do nothing */
+        }
+
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            initPreview(width, height);
+            startPreview();
+        }
+
+    };
 }
