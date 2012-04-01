@@ -8,5 +8,3 @@ gy = imfilter(f, kernel');
 gm = sqrt( gx.^2 + gy.^2 );
 
 g = uint8(gm);
-imshow(g);
-
