@@ -14,5 +14,5 @@ while diff > epsilon
     t = v;                  %update threshold
 end
 
-g = f > t;
+g = uint8(f > t).*f;
 

@@ -1,0 +1,11 @@
+while (true)
+{
+	image = getSnapshot()
+	// image is rgb
+	detectSobelEdges(image)
+	// image is grayscale
+	threshold(image)
+	// image is binary
+	image = binnoGreen(image)
+	// image is rgb, but using only green
+}
