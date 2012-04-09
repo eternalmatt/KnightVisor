@@ -6,23 +6,32 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 public class KnightVisorActivity extends Activity {
 
-    private Camera camera                   = null;
+    /* lol, alphabetical order */
+    private Camera        camera            = null;
+    private EdgeView      edgeView          = null;
     private SurfaceHolder surfaceHolder     = null;
-    
-    private boolean inPreview               = false;
+
     private boolean cameraConfigured        = false;
+    private boolean inPreview               = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-
-        SurfaceView mainScreen = (SurfaceView) findViewById(R.id.preview);
-        surfaceHolder = mainScreen.getHolder();
+        
+        /* set up window so we get full screen */
+        Window window = this.getWindow();
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
+        /* set up a surfaceView where the camera display will be put */
+        SurfaceView surfaceView = new SurfaceView(this);
+        surfaceHolder = surfaceView.getHolder();
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         surfaceHolder.addCallback(new SurfaceHolder.Callback() {
             public void surfaceDestroyed(SurfaceHolder holder) { }
@@ -32,6 +41,14 @@ public class KnightVisorActivity extends Activity {
                 startPreview();
             }
         });
+        
+
+        edgeView = new EdgeView(this);
+        
+        FrameLayout frameLayout = new FrameLayout(this);
+        frameLayout.addView(surfaceView);
+        frameLayout.addView(edgeView);
+        setContentView(frameLayout);
     }    
     
     /* set up camera and configure with proper width/height */
@@ -73,6 +90,7 @@ public class KnightVisorActivity extends Activity {
         super.onResume();
 
         camera = Camera.open();
+        camera.setPreviewCallback(edgeView);
         startPreview();
     }
 
@@ -80,11 +98,15 @@ public class KnightVisorActivity extends Activity {
     public void onPause() {
         if (inPreview) {
             camera.stopPreview();
+            inPreview = false;
         }
-
-        camera.release();
-        camera = null;
-        inPreview = false;
+        
+        if (camera != null)
+        {
+            camera.setPreviewCallback(null);
+            camera.release();
+            camera = null;
+        }
 
         super.onPause();
     }
