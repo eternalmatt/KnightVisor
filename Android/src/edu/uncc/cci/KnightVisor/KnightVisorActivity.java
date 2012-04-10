@@ -3,11 +3,14 @@ package edu.uncc.cci.KnightVisor;
 import android.app.Activity;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 public class KnightVisorActivity extends Activity {
 
@@ -25,7 +28,11 @@ public class KnightVisorActivity extends Activity {
         
         /* set up window so we get full screen */
         Window window = this.getWindow();
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        
+
+        edgeView = new EdgeView(this);
         
         /* set up a surfaceView where the camera display will be put */
         SurfaceView surfaceView = new SurfaceView(this);
@@ -41,7 +48,6 @@ public class KnightVisorActivity extends Activity {
         });
         
 
-        edgeView = new EdgeView(this);
         
         FrameLayout frameLayout = new FrameLayout(this);
         frameLayout.addView(surfaceView); //still not entirely sure why this is necessary.
@@ -54,12 +60,19 @@ public class KnightVisorActivity extends Activity {
         if (cameraConfigured || camera == null) 
             return;
         
+        try {
+            camera.setPreviewDisplay(surfaceHolder);
+        } catch (Throwable t) {
+            Log.e("PreviewDemo-surfaceCallback", "Exception in setPreviewDisplay()", t);
+            Toast.makeText(this, t.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
         Camera.Parameters parameters = camera.getParameters();
         Camera.Size       size       = getBestPreviewSize(width, height, parameters);
 
         if (size == null) 
             return;
-
+        
         parameters.setPreviewSize(size.width, size.height);
         camera.setParameters(parameters);
         cameraConfigured = true;

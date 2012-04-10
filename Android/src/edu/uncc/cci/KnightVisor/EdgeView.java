@@ -4,12 +4,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
+import android.util.Log;
 import android.view.View;
 
 public class EdgeView extends View implements PreviewCallback {
@@ -42,7 +45,11 @@ public class EdgeView extends View implements PreviewCallback {
 	     * code is a translation of William Beene's C code. */
 	    int px, cx, nx, ly, val, y, x, y_width;
 	    int threshold = 30;
-
+	    
+	    Bitmap bitmap = BitmapFactory.decodeByteArray(cameraPreview, 0, width*height);
+	    if (bitmap == null) Log.e("edgeview", "bitmap was null");
+	    else canvas.drawBitmap(bitmap, 0, 0, null);
+        
 	    for (y = 1; y < height-1; y++) {
 
 	        y_width = y*width;
@@ -57,20 +64,23 @@ public class EdgeView extends View implements PreviewCallback {
 	            val = Math.abs(px - nx) + Math.abs(ly);
 
 	            if(val > threshold) {
+	                //bitmap.setPixel(x, y, Color.GREEN);
 	                canvas.drawPoint((float)x, (float)y, edgePaint);
 	            }
+	            //else canvas.drawPoint(x, y, grayscale[Math.abs(cx)]);
 
 	            // previous x becomes current x and current x becomes next x
 	            px = cx;
 	            cx = nx;
 	        }
 	    }
+	    
 	}
 	
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
-		canvas.drawColor(Color.BLACK);
+		//canvas.drawColor(Color.argb(255, 0, 0, 0));
 
 		if (cameraPreviewValid && cameraPreview != null && cameraPreviewLock.tryLock()) {
 			try {
