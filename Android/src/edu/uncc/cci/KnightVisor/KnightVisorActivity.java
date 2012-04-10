@@ -37,8 +37,8 @@ public class KnightVisorActivity extends Activity {
             public void surfaceDestroyed(SurfaceHolder holder) { }
             public void surfaceCreated  (SurfaceHolder holder) { }
             public void surfaceChanged  (SurfaceHolder holder, int format, int width, int height) {
-                initPreview(width, height);
-                startPreview();
+                initializeCameraDimensions(width, height);
+                startCameraPreview();
             }
         });
         
@@ -52,7 +52,7 @@ public class KnightVisorActivity extends Activity {
     }    
     
     /* set up camera and configure with proper width/height */
-    private void initPreview(int width, int height) {
+    private void initializeCameraDimensions(int width, int height) {
         if (camera != null && surfaceHolder.getSurface() != null) {
             try {
                 camera.setPreviewDisplay(surfaceHolder);
@@ -75,7 +75,7 @@ public class KnightVisorActivity extends Activity {
     }
     
     /* start preview as long as the camera is configured */
-    private void startPreview() {
+    private void startCameraPreview() {
         if (cameraConfigured && camera != null) {
             camera.startPreview();
             inPreview = true;
@@ -91,7 +91,7 @@ public class KnightVisorActivity extends Activity {
 
         camera = Camera.open();
         camera.setPreviewCallback(edgeView);
-        startPreview();
+        startCameraPreview();
     }
 
     @Override

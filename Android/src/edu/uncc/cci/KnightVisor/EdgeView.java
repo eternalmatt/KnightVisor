@@ -4,6 +4,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -22,9 +23,49 @@ public class EdgeView extends View implements PreviewCallback {
 	private int        width                = 0;
 	private int        height               = 0;
 	
+	public static final byte[][] sobel = { { -1 -2 -1}, {0, 0, 0}, {1, 2, 1}};
+	private Paint[] grayscale = new Paint[256];
+	
 	public EdgeView(Context context) {
 		super(context);
 		edgePaint.setColor(Color.GREEN);
+		for(int i=0; i < 256; i++)
+		{
+		    Paint p = new Paint();
+		    p.setARGB(255, i, i, i);
+		    grayscale[i] = p;
+		}
+	}
+	
+	private void edgeDetection(Canvas canvas)
+	{
+	    /* a rather poor implementation of edge detection.
+	     * code is a translation of William Beene's C code. */
+	    int px, cx, nx, ly, val, y, x, y_width;
+	    int threshold = 30;
+
+	    for (y = 1; y < height-1; y++) {
+
+	        y_width = y*width;
+
+	        px = cameraPreview[y_width]/2; // init previous x
+	        cx = cameraPreview[y_width+1]/2; // init current x
+
+	        for (x = 1; x < width-1; x++) {
+	            nx = cameraPreview[y_width+x+1]/2; // next x
+
+	            ly = (cameraPreview[(y-1)*width+x]/2) - (cameraPreview[(y+1)*width+x]/2);
+	            val = Math.abs(px - nx) + Math.abs(ly);
+
+	            if(val > threshold) {
+	                canvas.drawPoint((float)x, (float)y, edgePaint);
+	            }
+
+	            // previous x becomes current x and current x becomes next x
+	            px = cx;
+	            cx = nx;
+	        }
+	    }
 	}
 	
 	
@@ -34,13 +75,9 @@ public class EdgeView extends View implements PreviewCallback {
 
 		if (cameraPreviewValid && cameraPreview != null && cameraPreviewLock.tryLock()) {
 			try {
-						
-				/* need to implement actual edge detection.
-				 * this is currently drawing a thick green line */
-				for(float i=0; i < width; i++)
-			    for(float j=height/2; j < height/2 + 5; j++)
-			        canvas.drawPoint(i, j, edgePaint);
+			    edgeDetection(canvas);
 					
+			    
 			} finally {
 				cameraPreviewLock.unlock();
                 cameraPreviewValid = false;
