@@ -1,0 +1,3 @@
+[submodule "edgefinder"]
+	path = edgefinder
+	url = git@github.com:bwr/edgefinder.git
