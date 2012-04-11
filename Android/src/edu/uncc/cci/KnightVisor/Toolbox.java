@@ -11,7 +11,7 @@ public class Toolbox
     }
     
     /* i think I have trust issues.... */
-    public static final float smoothSize = 5.0f;
+    public static final float smoothSize = 7.0f;
     public static final float smooth = 1.0f / (smoothSize * smoothSize);
     
     public static int[][] smooth(int[][] f)
@@ -22,22 +22,23 @@ public class Toolbox
         int r, c, i, j;
         
         int [][] g = new int[R+length][C+length];
-        float cell;
+        int sum;
         
         /* for each row,col in f */
         for(r=0; r < R; r++)
         for(c=0; c < C; c++)
         {
-            cell = 0;
+            sum = 0;
          
-            /* perform matrix dot-multiplication and get summation of that matrix */
+            /* sum up a sub-matrix of f */
             for(i=0; i < length; i++)
             for(j=0; j < length; j++)
             {
-                cell = cell + f[r+i][c+j];//((float)f[r + i][c + j]) * smooth;
+                sum = sum + f[r+i][c+j];
             }
         
-            g[r][c] = (int) (smooth * cell);
+            /* multiply by a factor to fit back to normal range */
+            g[r][c] = (int) (smooth * sum);
         }
         return g;
     }

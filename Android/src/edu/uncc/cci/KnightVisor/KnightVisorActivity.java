@@ -121,7 +121,7 @@ public class KnightVisorActivity extends Activity {
     private Camera.Size getBestPreviewSize(int width, int height, Camera.Parameters parameters) {
         Camera.Size result = null;
 
-        /* trying to get smallest possible size */
+        /* trying to get largest possible size */
         for (Camera.Size size : parameters.getSupportedPreviewSizes())
             if (size.width <= width && size.height <= height)
                 if (result == null || size.width * size.height > result.width * result.height)

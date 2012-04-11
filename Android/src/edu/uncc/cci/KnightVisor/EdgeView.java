@@ -11,7 +11,9 @@ import android.graphics.Paint;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
+import android.util.Log;
 import android.view.View;
+import edu.uncc.cci.KnightVisor.Toolbox.DoubleOperation;
 
 public class EdgeView extends View implements PreviewCallback
 {
@@ -50,39 +52,32 @@ public class EdgeView extends View implements PreviewCallback
 	
     private void sobelDetection(Canvas canvas)
 	{
-	    int[][] f = new int[height][width];
-	    int[]   g = new int[width * height];
+	    int[][] f = new int[height][width];    //input image
+	    int[]   g = new int[width * height];   //output image
 	    int r,c,r_width;
-	    for(r=0; r < height; r++)
-        {
+	    
+	    /* to convert from 1-D to 2-D matrix */
+	    for(r=0; r < height; r++){
             r_width = r * width;
             for(c=0; c < width; c++)
-            {
                 f[r][c] = cameraPreview[r_width + c];
-            }
         }
 	    
-	    f = Toolbox.smooth(f);
+	    /* smooth that mother fucker */
+	    int[][] smooth = Toolbox.smooth(f);
 	    
-	    for(r=0; r < height; r++)
-        {
-            r_width = r * width;
-            for(c=0; c < width; c++)
-            {
-                g[r_width + c] = grayscale[f[r][c]];
-            }
-        }
+	    /* do gx, gy, and gm */
+	    int[][] gx = Toolbox.imfilter(smooth, sobelNorm);
+	    int[][] gy = Toolbox.imfilter(smooth, sobelTran);
 	    
-	    
-	    /*
-	    int[][] gx = Toolbox.imfilter(f, sobelNorm);
-	    int[][] gy = Toolbox.imfilter(f, sobelTran);
-	    int[][] gm = Toolbox.transform(gx, gy, new Operation() {
+	    /* this type of thing is kinda unecessary, but I got carried away */
+	    int[][] gm = Toolbox.transform(gx, gy, new DoubleOperation() {
                     public int it(int a, int b) {
                         return (int) Math.sqrt(a*a + b*b);
-                        }
+                    }
         });
 	    
+	    /* convert from 2-D intensity matrix to a 1-D grayscale array that we'll output */
 	    int color;
 	    for(r=0; r < height; r++)
         {
@@ -90,13 +85,19 @@ public class EdgeView extends View implements PreviewCallback
             for(c=0; c < width; c++)
             {
                 color = gm[r][c];
-                if      (color < 0)   color = 0;
-                else if (color > 565) color = 565;
-                g[r_width + c] = Color.rgb(color, color, color);
+                if (color > 255)
+                {
+                    //if you log all these values, you'll see they're commonly
+                    //between 255 and 700. not sure if I'm doing anything wrong
+                    //to cause that.....but anyway. this works for meow.
+                    //Log.d(TAG, String.valueOf(color));
+                    color = 255;
+                }
+                g[r_width + c] = grayscale[color];
             }
         }
-        */
-	    
+        
+	    /* toss array into a bitmap, and toss that sucker onto the canvas */
 	    canvas.drawBitmap(Bitmap.createBitmap(g, width, height, Bitmap.Config.ARGB_8888), 0, 0, null);
 	}
 	
@@ -176,7 +177,7 @@ public class EdgeView extends View implements PreviewCallback
 				if(cameraPreview == null || cameraPreview.length != length) {
 					cameraPreview = new int[length];
 				}
-				
+				Log.d(TAG, "width " + width + ", height " + height);
 				/* take the Y channel (luminocity) and convert to proper grayscale */
 				for(int i=0, c; i < length; i++)
 				{
