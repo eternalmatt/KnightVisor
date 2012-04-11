@@ -1,6 +1,7 @@
 package edu.uncc.cci.KnightVisor;
 
 import android.app.Activity;
+import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,7 +31,6 @@ public class KnightVisorActivity extends Activity {
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
-
         edgeView = new EdgeView(this);
         
         /* set up a surfaceView where the camera display will be put */
@@ -60,6 +60,7 @@ public class KnightVisorActivity extends Activity {
             return;
         
         try {
+            /* we're going to have the camera below whatever EdgeView doesn't draw */
             camera.setPreviewDisplay(surfaceHolder);
         } catch (Throwable t) {
             Log.e("PreviewDemo-surfaceCallback", "Exception in setPreviewDisplay()", t);
@@ -73,6 +74,7 @@ public class KnightVisorActivity extends Activity {
             return;
         
         parameters.setPreviewSize(size.width, size.height);
+        parameters.setPreviewFormat(PixelFormat.JPEG);
         camera.setParameters(parameters);
         cameraConfigured = true;
     }
