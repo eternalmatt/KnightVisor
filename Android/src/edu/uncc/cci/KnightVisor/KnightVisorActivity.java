@@ -1,7 +1,7 @@
 package edu.uncc.cci.KnightVisor;
 
 import android.app.Activity;
-import android.graphics.PixelFormat;
+import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
@@ -74,7 +74,7 @@ public class KnightVisorActivity extends Activity {
             return;
         
         parameters.setPreviewSize(size.width, size.height);
-        parameters.setPreviewFormat(PixelFormat.JPEG);
+        parameters.setPreviewFormat(ImageFormat.NV21);
         camera.setParameters(parameters);
         cameraConfigured = true;
     }
