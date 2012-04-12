@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
@@ -93,10 +94,23 @@ public class EdgeView extends View implements PreviewCallback
                     //Log.d(TAG, String.valueOf(color));
                     color = 255;
                 }
-                g[r_width + c] = grayscale[color];
+                color = color > 48 ? 255 : 0;
+                
+                g[r_width+c] = (color << 0) +
+                        (color << 8) +
+                (color << 16) +
+                (color << 24);
             }
         }
-        
+        /*
+	    Rect src = new Rect(0,0,width, height);
+	    Rect dst = new Rect(0,0,width, height);
+	    Bitmap bitmap = Bitmap.createBitmap(g, width, height, Bitmap.Config.ARGB_8888);
+	    Paint paint = new Paint();
+	    paint.setColor(Color.WHITE);
+	    paint.setAlpha(Color.TRANSPARENT);
+	    canvas.drawBitmap(bitmap, src, dst, paint);
+	    */
 	    /* toss array into a bitmap, and toss that sucker onto the canvas */
 	    canvas.drawBitmap(Bitmap.createBitmap(g, width, height, Bitmap.Config.ARGB_8888), 0, 0, null);
 	}
@@ -154,9 +168,49 @@ public class EdgeView extends View implements PreviewCallback
 
 		if (cameraPreviewValid && cameraPreview != null && cameraPreviewLock.tryLock()) {
 			try {
-			    //edgeDetection(canvas);
-			    sobelDetection(canvas);
-				//drawEverything(canvas);
+			    this.sobelDetection(canvas);
+			    /*
+			    int x, y;
+			    int[] frame = cameraPreview;
+			    int[] g = new int[cameraPreview.length];
+	            int w = width, pos;
+	            int sobelX, sobelY, sobelFinal;
+	            for(y=1; y<height-1; y++)
+	            {
+	                pos = y * w + 1;
+
+	                for(x=1; x<(width-1); x++)
+	            {
+	                sobelX = frame[pos+w+1] - frame[pos+w-1] + frame[pos+1] + frame[pos+1] - frame[pos-1] - frame[pos-1] + frame[pos-w+1] - frame[pos-w-1];
+	                sobelY = frame[pos+w+1] + frame[pos+w] + frame[pos+w] + frame[pos+w-1] - frame[pos-w+1] - frame[pos-w] - frame[pos-w] - frame[pos-w-1];
+	                sobelFinal = (sobelX + sobelY) / 2;
+
+	                // Threshold at 48 (for example)
+	                if(sobelFinal <  48)
+	                    sobelFinal = 0;
+	                if(sobelFinal >= 48)
+	                    sobelFinal = 255;
+
+	                // Build a 32-bit RGBA value, either
+	                // transparent black or opaque white
+	                g[pos] = (sobelFinal << 0) +
+	                           (sobelFinal << 8) +
+	                           (sobelFinal << 16) +
+	                           (sobelFinal << 24);
+	            }
+	            }
+
+
+	            // Copy calculated frame to bitmap, then
+	            // translate onto overlay canvas
+	            Rect rect = new Rect(0,0,width,height);
+	            Paint pt = new Paint();
+	            Bitmap bmp = Bitmap.createBitmap(g, width, height, Bitmap.Config.ARGB_8888);
+
+	            pt.setColor(Color.WHITE);
+	            pt.setAlpha(0xFF);
+	            canvas.drawBitmap(bmp, rect, rect, pt);
+			    */
 			    
 			} finally {
 				cameraPreviewLock.unlock();
@@ -177,13 +231,21 @@ public class EdgeView extends View implements PreviewCallback
 				if(cameraPreview == null || cameraPreview.length != length) {
 					cameraPreview = new int[length];
 				}
-				Log.d(TAG, "width " + width + ", height " + height);
+				
+				
 				/* take the Y channel (luminocity) and convert to proper grayscale */
-				for(int i=0, c; i < length; i++)
+				for(int i=0; i < length; i++)
 				{
-				    c = (yuv[i] + 256) / 2; //convert luminocity from [-128,128] to [256]
-				    cameraPreview[i] = c;//grayscale[c]; //get gray color
+				    cameraPreview[i] = yuv[i] + 128; //convert luminocity from [-128,128] to [256]
 				}
+				
+				
+                int min = cameraPreview[0], max = cameraPreview[0];
+                for(int b : cameraPreview)
+                    if      (b < min) min = b;
+                    else if (b > max) max = b;
+                Log.d(TAG, "min= " + min + ", max= " + max);
+                
 				
 				
 			} finally {
