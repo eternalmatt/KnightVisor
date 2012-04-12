@@ -1,7 +1,7 @@
 package edu.uncc.cci.KnightVisor;
 
-public class Toolbox 
-{
+public final class Toolbox 
+{    
     private Toolbox(){}
     public interface SingleOperation {
         public int it(int a);
