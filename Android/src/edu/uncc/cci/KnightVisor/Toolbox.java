@@ -2,11 +2,10 @@ package edu.uncc.cci.KnightVisor;
 
 public class Toolbox 
 {
-    private Toolbox(){}
-    public interface SingleOperation {
+    public static interface UnaryOperation {
         public int it(int a);
     }
-    public interface DoubleOperation {
+    public static interface BinaryOperation {
         public int it(int a,int b);
     }
     
@@ -71,7 +70,7 @@ public class Toolbox
         return g;
     }
     
-    public static int[][] transform(final int[][] f, final int[][] g, DoubleOperation op)
+    public static int[][] transform(final int[][] f, final int[][] g, BinaryOperation op)
     {
         final int R = f.length;
         final int C = f[0].length;
@@ -85,7 +84,7 @@ public class Toolbox
         return h;
     }
     
-    public static int[][] transform(final int[][] f, SingleOperation op)
+    public static int[][] transform(final int[][] f, UnaryOperation op)
     {
         final int R = f.length;
         final int C = f[0].length;
@@ -97,5 +96,62 @@ public class Toolbox
             h[r][c] = op.it(f[r][c]);
         
         return h;
+    }
+    
+    // this will do a transformation on f rather than on a new allocation
+    public static void intensityTransform(final int[][] f, UnaryOperation op)
+    {
+        final int R = f.length;
+        final int C = f[0].length;
+        
+        int r, c;
+        for(r = 0; r < R; r++)
+        	for(c = 0; c < C; c++)
+        		f[r][c] = op.it(f[r][c]);
+    }
+    
+    public static int threshold(final int[][] f)
+    {
+        final int R = f.length;
+        final int C = f[0].length;
+    	final int nPixels = R * C;
+    	
+    	// calculate histogram, 
+    	final int[] histogram = new int[256];
+    	for (int r = 0; r < R; r++)
+    		for (int c = 0; c < C; c++)
+    			histogram[f[r][c]]++;
+    	
+    	// calculate cumulative sum and weighted cumulative sum
+    	final int[] cumSum = new int[256];
+    	final int[] weightCumSum = new int[256];
+    	int totalWeightCumSum = 0;
+    	cumSum[0] = histogram[0];
+    	weightCumSum[0] = histogram[0];
+    	for (int i = 1; i < 256; i++) {
+    		cumSum[i] = cumSum[i-1] + histogram[i];
+    		weightCumSum[i] = weightCumSum[i-1] + i * histogram[i];
+    		totalWeightCumSum += weightCumSum[i];
+    	}
+    	
+    	// find maximum Otsu variance
+    	int maxVariance = Integer.MIN_VALUE;
+    	int maxIndex = 0;
+    	for (int i = 0; i < 256; i++) {
+    		int w0 = cumSum[i];		if (w0 == 0) continue;
+    		int w1 = nPixels - w0;	if (w1 == 0) continue;
+    		
+    		double u0 = weightCumSum[i] / w0;
+    		double u1 = (totalWeightCumSum - weightCumSum[i]) / w1;
+    		
+    		int variance = w0 * w1 * (int)Math.pow(u0-u1, 2);
+    		if (variance > maxVariance) {
+    			maxVariance = variance;
+    			maxIndex = i;
+    		}
+    	}
+    	
+    	// return intensity value of maximum variance
+    	return maxIndex;
     }
 }

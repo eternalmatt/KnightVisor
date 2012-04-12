@@ -8,13 +8,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
+//import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.util.Log;
 import android.view.View;
-import edu.uncc.cci.KnightVisor.Toolbox.DoubleOperation;
+import edu.uncc.cci.KnightVisor.Toolbox.BinaryOperation;
 
 public class EdgeView extends View implements PreviewCallback
 {
@@ -42,14 +42,30 @@ public class EdgeView extends View implements PreviewCallback
         return g;
     }
 	
-	public EdgeView(Context context) {
+	public EdgeView(Context context)
+	{
 		super(context);
 		edgePaint.setColor(Color.GREEN);
 		for(int i=0; i < 256; i++)
 		    grayscale[i] = Color.rgb(i, i, i);
 	}
 	
-	
+	private void tron(Canvas canvas)
+	{
+		int[][] f = new int[height][width]; // input image (2D)
+		int[] g = new int[height * width]; // output image (1D)
+		int r, c, r_width;
+
+	    // convert 1D cameraPreview to 2D f
+	    for(r = 0; r < height; r++) {
+            r_width = r * width;
+            for(c = 0; c < width; c++)
+                f[r][c] = cameraPreview[r_width + c];
+        }
+	    
+	    // output g by tossing f into a bitmap, and tossing that onto the canvas 
+	    canvas.drawBitmap(Bitmap.createBitmap(g, width, height, Bitmap.Config.ARGB_8888), 0, 0, null);
+	}
 	
     private void sobelDetection(Canvas canvas)
 	{
@@ -72,7 +88,7 @@ public class EdgeView extends View implements PreviewCallback
 	    int[][] gy = Toolbox.imfilter(smooth, sobelTran);
 	    
 	    /* this type of thing is kinda unecessary, but I got carried away */
-	    int[][] gm = Toolbox.transform(gx, gy, new DoubleOperation() {
+	    int[][] gm = Toolbox.transform(gx, gy, new BinaryOperation() {
                     public int it(int a, int b) {
                         return (int) Math.sqrt(a*a + b*b);
                     }
@@ -168,7 +184,9 @@ public class EdgeView extends View implements PreviewCallback
 
 		if (cameraPreviewValid && cameraPreview != null && cameraPreviewLock.tryLock()) {
 			try {
-			    this.sobelDetection(canvas);
+			    //this.sobelDetection(canvas);
+			    tron(canvas);
+			    
 			    /*
 			    int x, y;
 			    int[] frame = cameraPreview;
