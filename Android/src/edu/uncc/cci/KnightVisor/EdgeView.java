@@ -14,6 +14,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.util.Log;
+import android.view.SurfaceHolder;
 import android.view.View;
 import edu.uncc.cci.KnightVisor.Toolbox.DoubleOperation;
 
@@ -24,15 +25,12 @@ public class EdgeView extends View implements PreviewCallback
     private final Lock  cameraPreviewLock   = new ReentrantLock();
     private final Paint edgePaint           = new Paint();
     
-	private boolean    cameraPreviewValid   = false;
-    private int[]      cameraPreview        = null;
+	private byte[]     cameraPreview        = null;
 	private int        width                = 0;
 	private int        height               = 0;
 	
 	public static final byte[][] sobelNorm = { { -1, -2, -1}, { 0, 0, 0}, { 1, 2, 1} };
 	public static final byte[][] sobelTran = { { -1,  0,  1}, {-2, 0, 2}, {-1, 0, 1} };
-	
-	public final int[] grayscale = new int[256];
 	
 	static
     {
@@ -41,20 +39,9 @@ public class EdgeView extends View implements PreviewCallback
     
     public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
 	
-	public int[] convertToGrayscale(int [] f)
-    {
-        final int length = f.length;
-        final int[] g = new int[length];
-        for(int i=0; i < length; i++)
-            g[i] = grayscale[f[i]];
-        return g;
-    }
-	
 	public EdgeView(Context context) {
 		super(context);
 		edgePaint.setColor(Color.GREEN);
-		for(int i=0; i < 256; i++)
-		    grayscale[i] = Color.rgb(i, i, i);
 	}
 	
 	
@@ -163,75 +150,66 @@ public class EdgeView extends View implements PreviewCallback
 	
 	private void drawEverything(Canvas canvas)
 	{
-	    cameraPreview = convertToGrayscale(cameraPreview);
-	    Bitmap bitmap = Bitmap.createBitmap(cameraPreview, width, height, Bitmap.Config.ARGB_8888);
-	    canvas.drawBitmap(bitmap, 0, 0, null);
+	    //cameraPreview = convertToGrayscale(cameraPreview);
+	    //Bitmap bitmap = Bitmap.createBitmap(cameraPreview, width, height, Bitmap.Config.ARGB_8888);
+	    //canvas.drawBitmap(bitmap, 0, 0, null);
 	}
-	
-	private IntBuffer intBuffer;
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
 
-		if (cameraPreviewValid && cameraPreview != null && cameraPreviewLock.tryLock()) {
+		if (cameraPreview != null && cameraPreviewLock.tryLock())
 			try {
 			    
-			    intBuffer.position(0);
+			    /* allocate an IntBuffer that seaworld will write into */
+	            IntBuffer intBuffer = ByteBuffer.allocateDirect((width * height) << 2 ).asIntBuffer();
 			    
+			    
+	            Log.d(TAG, "Before native processing");
+	            
+	            /* do some processing in seaworld */
+                nativeProcessing(cameraPreview, width, height, intBuffer);
+                
+                Log.d(TAG, "After native processing");
+                
+			    
+                /* create an empty bitmap of size width/height */
 			    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+			    
+			    
+			    /* copy the pixels from intBuffer to bitmap */
 			    bitmap.copyPixelsFromBuffer(intBuffer);
 
+			    
+			    /* draw the canvas onto the screen */
 			    canvas.drawBitmap(bitmap, 0, 0, null);
+			    
 			    
 			} finally {
 				cameraPreviewLock.unlock();
-                cameraPreviewValid = false;
 			}
-		}
 	}
 	
-	public void onPreviewFrame(byte[] yuv, Camera camera) {
-		if (cameraPreviewValid == false && cameraPreviewLock.tryLock()) {
+	public void onPreviewFrame(byte[] yuv, Camera camera) 
+	{
+		if (cameraPreviewLock.tryLock() && yuv != null)
 			try {
 
 				Size size = camera.getParameters().getPreviewSize();
 				width  = size.width;
 				height = size.height;
-				int length = width * height;
+				final int length = width * height;
 				
-				if(cameraPreview == null || cameraPreview.length != length) {
-					cameraPreview = new int[length];
-				}
+				if (cameraPreview == null || cameraPreview.length != length)
+				    cameraPreview = new byte[length];
 				
-				intBuffer = ByteBuffer.allocateDirect(length * 4).asIntBuffer();
-				Log.d(TAG, "Native processing");
-				
-				byte[] g = new byte[length];
-				System.arraycopy(yuv, 0, g, 0, length);
-	            nativeProcessing(g, width, height, intBuffer);
-                
-				
-				/* take the Y channel (luminocity) and convert to proper grayscale */
-				for(int i=0; i < length; i++)
-				{
-				    cameraPreview[i] = ((int)yuv[i]) + 128; //convert luminocity from [-128,128] to [256]
-				}
-				
-				
-                int min = cameraPreview[0], max = cameraPreview[0];
-                for(int b : cameraPreview)
-                    if      (b < min) min = b;
-                    else if (b > max) max = b;
-                Log.d(TAG, "min= " + min + ", max= " + max);
-                
-				
+				System.arraycopy(yuv, 0, cameraPreview, 0, length);
+	
 				
 			} finally {
 				cameraPreviewLock.unlock();
-                cameraPreviewValid = true;
 				postInvalidate();
 			}
-		}
 	}
 
 }

@@ -46,8 +46,6 @@ public class KnightVisorActivity extends Activity {
             }
         });
         
-
-        
         FrameLayout frameLayout = new FrameLayout(this);
         frameLayout.addView(surfaceView); //still not entirely sure why this is necessary.
         frameLayout.addView(edgeView);
