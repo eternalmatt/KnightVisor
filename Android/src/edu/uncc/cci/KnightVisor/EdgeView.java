@@ -205,7 +205,10 @@ public class EdgeView extends View implements PreviewCallback
 				
 				intBuffer = ByteBuffer.allocateDirect(length * 4).asIntBuffer();
 				Log.d(TAG, "Native processing");
-				nativeProcessing(yuv, width, height, intBuffer);
+				
+				byte[] g = new byte[length];
+				System.arraycopy(yuv, 0, g, 0, length);
+	            nativeProcessing(g, width, height, intBuffer);
                 
 				
 				/* take the Y channel (luminocity) and convert to proper grayscale */
