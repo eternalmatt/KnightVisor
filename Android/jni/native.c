@@ -1,16 +1,64 @@
 #include <edu_uncc_cci_KnightVisor_EdgeView.h>
-/*
- * Class:     edu_uncc_cci_KnightVisor_EdgeView
- * Method:    nativeProcessing
- * Signature: ([BIILjava/nio/ByteBuffer;)V
+#include <stdlib.h>
+
+
+/* So I know this code is going to look complicated and gross,
+   but it really isn't.  Let is sink in and read slowly.
+   It basically goes like this:
+        1. Get access to Java's memory.
+        2. Create a local copy of input frame for performance reasons
+        3. Do some processing and populate Java's memory.
+ 
+    Scary stuff you'll see that are unecessary but help code:
+        1. A typedef for pixel.
+        2. A bunch of constants.
+        3. A bunch of #define macros.
+            a) colors so I can code in English.
+            b) matrix positions so I can code and not worry about the underlying array.
+        4. Bit shifting. Doing (x << 1) is the same thing as (x * 2).
+ 
+    The last eight lines are all that is important to image processing.
  */
+
+
+
+//refer to http://developer.android.com/reference/android/graphics/Color.html
+// (or anywhere else that uses this same scheme. it's just hex of ARGB)
+#define WHITE       0xFFFFFFFF
+#define TRANSPARENT 0x00000000
+#define GREEN       0xFF00FF00
+
+typedef unsigned char pixel; //a pixel has range [0..255]
+pixel f[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
+
+
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
-    (JNIEnv *env, jobject this,
+    (JNIEnv *env, jobject obj, //these variables are in every JNI call
+     
+     /* the input byte[] camera frame, width, height, and output int[] buffer */
      jbyteArray frame, jint width, jint height, jobject buffer)
 {
-	jbyte *f = (jbyte*)(*env)->GetByteArrayElements(env, frame, 0);
-	jint  *g = (jint*)((*env)->GetDirectBufferAddress(env, buffer));
-    const int w = width, maxx = width - 1, maxy = height - 1, length = width * height - width - 1;
+	jbyte *fbytearray = (jbyte*)(*env)->GetByteArrayElements(env, frame, 0);
+	jint  *g          = (jint*)((*env)->GetDirectBufferAddress(env, buffer));
+    
+    const int w      = width;               //"width" is too long of a word
+    const int length = width * height;      //optimize out the multiply
+    const int start  = w + 1;               //we can't operate on an entire image
+    const int stop   = length - w - 1;      //we can't operate on an entire image.
+    int p, integer;
+    
+    
+    /* create a local copy so it is faster */
+    for(p = 0; p < length; ++p)
+    {
+        integer = (int)fbytearray[p];    //cast to int
+        f[p] = (pixel) integer + 128;    //add 128 so range is [0..255] and not [-128..127]
+        
+        /* the adding 128 might be unecessary if the math stays the same
+         * everywhere (i.e. values don't matter until absolute final step)
+         */
+    }
+    (*env)->ReleaseByteArrayElements(env, frame, fbytearray, JNI_COMMIT);
     
 #define n11 (f[p-w-1])
 #define n12 (f[p-w  ])
@@ -22,27 +70,21 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
 #define n32 (f[p+w  ])
 #define n33 (f[p+w+1])
     
-#define WHITE       0xFFFFFFFF
-#define TRANSPARENT 0x00000000
-    
     /* these definitions are so we can refer to a window like so:
      n11 n12 n13
      n21 n22 n23
      n31 n32 n33
      
-     see, it looks pretty. just don't start using "n11" in other variable names...*/
-    int p;
-    #pragma omp parallel for default(shared) private(p) schedule(static)
-    for (p = width + 1; p < length; p++)
-    {
-        int px = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
-        int py = n31 + (n32 << 1) + n33 - (n11 + (n12 << 1) + n13);
-        
-        if(px<0) px=-px; 
-        if(py<0) py=-py;
-        int ps = px+py;
-        g[p] = ps > 95 ? WHITE : TRANSPARENT; 
-    }
+     see, it looks pretty. just don't start using "n11" in other variable names...
+     also, we have to keep this for loop structure the exact same. */
     
-    (*env)->ReleaseByteArrayElements(env, frame, f, JNI_COMMIT);
+    int gx, gy, gm;
+    for (p = start; p < stop; ++p)
+    {
+        gx = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
+        gy = n31 + (n32 << 1) + n33 - (n11 + (n12 << 1) + n13);
+        
+        gm = gx + gy;
+        g[p] = gm > 98 ? GREEN : TRANSPARENT; 
+    }
 }

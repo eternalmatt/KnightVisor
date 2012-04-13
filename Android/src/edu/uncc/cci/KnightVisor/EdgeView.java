@@ -14,7 +14,6 @@ import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.util.Log;
-import android.view.SurfaceHolder;
 import android.view.View;
 import edu.uncc.cci.KnightVisor.Toolbox.DoubleOperation;
 
@@ -162,7 +161,7 @@ public class EdgeView extends View implements PreviewCallback
 			try {
 			    
 			    /* allocate an IntBuffer that seaworld will write into */
-	            IntBuffer intBuffer = ByteBuffer.allocateDirect((width * height) << 2 ).asIntBuffer();
+	            IntBuffer intBuffer = ByteBuffer.allocateDirect(width * height * 4).asIntBuffer();
 			    
 			    
 	            Log.d(TAG, "Before native processing");
