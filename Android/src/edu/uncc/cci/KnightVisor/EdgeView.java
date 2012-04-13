@@ -179,7 +179,7 @@ public class EdgeView extends View implements PreviewCallback
 			    
 			    /* copy the pixels from intBuffer to bitmap */
 			    bitmap.copyPixelsFromBuffer(intBuffer);
-
+			    
 			    
 			    /* draw the canvas onto the screen */
 			    canvas.drawBitmap(bitmap, 0, 0, null);
