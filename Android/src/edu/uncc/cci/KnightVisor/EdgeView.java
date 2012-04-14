@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
@@ -24,6 +25,12 @@ public class EdgeView extends View implements PreviewCallback
     private final Lock  cameraPreviewLock   = new ReentrantLock();
     private final Paint edgePaint           = new Paint();
     
+    private Bitmap      bitmap              = null;
+    private Rect        canvasRect          = null;
+    private Rect        cameraRect          = null;
+        
+
+    private IntBuffer  intBuffer            = null;
 	private byte[]     cameraPreview        = null;
 	private int        width                = 0;
 	private int        height               = 0;
@@ -175,9 +182,8 @@ public class EdgeView extends View implements PreviewCallback
 
 		if (cameraPreview != null && cameraPreviewLock.tryLock())
 			try {
-			    
-			    /* allocate an IntBuffer that seaworld will write into */
-	            IntBuffer intBuffer = ByteBuffer.allocateDirect(width * height * 4).asIntBuffer();
+			    if (canvasRect == null)
+			        canvasRect = new Rect(0,0,canvas.getWidth(), canvas.getHeight());
 			    
 			    
 	            Log.d(TAG, "Before native processing");
@@ -186,18 +192,14 @@ public class EdgeView extends View implements PreviewCallback
                 nativeProcessing(cameraPreview, width, height, intBuffer);
                 
                 Log.d(TAG, "After native processing");
+			    
                 
-			    
-                /* create an empty bitmap of size width/height */
-			    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-			    
-			    
 			    /* copy the pixels from intBuffer to bitmap */
 			    bitmap.copyPixelsFromBuffer(intBuffer);
 			    
 			    
 			    /* draw the canvas onto the screen */
-			    canvas.drawBitmap(bitmap, 0, 0, null);
+			    canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);
 			    
 			} finally {
 				cameraPreviewLock.unlock();
@@ -215,7 +217,12 @@ public class EdgeView extends View implements PreviewCallback
 				final int length = width * height;
 				
 				if (cameraPreview == null || cameraPreview.length != length)
+				{
+	                cameraRect = new Rect(0,0,width, height);
 				    cameraPreview = new byte[length];
+				    intBuffer = ByteBuffer.allocateDirect(width * height * 4).asIntBuffer();
+				    bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+				}
 				
 				System.arraycopy(yuv, 0, cameraPreview, 0, length);
 	

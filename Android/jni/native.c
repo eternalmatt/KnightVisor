@@ -24,9 +24,12 @@
 
 //refer to http://developer.android.com/reference/android/graphics/Color.html
 // (or anywhere else that uses this same scheme. it's just hex of ARGB)
-#define WHITE       0xFFFFFFFF
 #define TRANSPARENT 0x00000000
+#define WHITE       0xFFFFFFFF
+#define BLACK       0xFF000000
 #define GREEN       0xFF00FF00
+#define BLUE        0xFFFF0000
+#define RED         0xFF0000FF
 
 typedef unsigned char pixel; //a pixel has range [0..255]
 pixel f[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
@@ -78,13 +81,22 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
      see, it looks pretty. just don't start using "n11" in other variable names...
      also, we have to keep this for loop structure the exact same. */
     
+    int colors[] = { RED, GREEN, BLUE };
+    
+    
     int gx, gy, gm;
     for (p = start; p < stop; ++p)
     {
+        pixel pixels[] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
+        //sort(pixels, 9);
+        
         gx = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
         gy = n31 + (n32 << 1) + n33 - (n11 + (n12 << 1) + n13);
         
         gm = gx + gy;
-        g[p] = gm > 98 ? GREEN : TRANSPARENT; 
+        
+        int color = colors[ p % 3];
+        g[p] = gm > 98 ? GREEN : TRANSPARENT;
+        //g[p] = (f[p] << 16) | (f[p] << 8) | f[p];
     }
 }
