@@ -44,17 +44,17 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManual
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
     (JNIEnv *env, jobject obj, jint userColor)
 {
-    //apparently, Java's colors are different from C's colors.
-    //this switch will do for now, but I should figure out the formula
-    //and correct it for good.
-    switch (userColor)
-    {
-        case GREEN: color = GREEN;      return;
-        case RED:   color = BLUE;       return;
-        case BLUE:  color = RED;        return;
-            
-        default:    color = userColor;
-    }
+    /* For some reason the colors get mixed up and we
+     * have to switch the red and blue channels  */
+    const int redChannel   = 0x000000FF;
+    const int greenChannel = 0x0000FF00;
+    const int blueChannel  = 0x00FF0000;
+    const int alphaChannel = 0xFF000000;
+    
+    color = (userColor & greenChannel)
+          | ((userColor & redChannel)   << 16) //swap red
+          | ((userColor & blueChannel)  >> 16) //with blue
+          | alphaChannel;
 }
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
