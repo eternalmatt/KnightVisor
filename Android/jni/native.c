@@ -28,6 +28,7 @@
 #define BLUE        0xFFFF0000
 #define RED         0xFF0000FF
 
+
 typedef unsigned char pixel; //a pixel has range [0..255]
 pixel f[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
 

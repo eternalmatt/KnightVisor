@@ -1,5 +1,7 @@
 package edu.uncc.cci.KnightVisor;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
@@ -58,8 +60,8 @@ public class KnightVisorActivity extends Activity {
         
         
         SeekBar seekbar = (SeekBar)this.findViewById(R.id.seekBar);
-        seekbar.setMax(255);
-        seekbar.setProgress(100);
+        seekbar.setMax(255);        //max is 255. might want to decrease this.
+        seekbar.setProgress(100);   //default threshold is 100
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             public void onStartTrackingTouch(SeekBar seekBar) { }
             public void onStopTrackingTouch (SeekBar seekBar) { }
@@ -115,6 +117,8 @@ public class KnightVisorActivity extends Activity {
         camera = Camera.open();
         camera.setPreviewCallback(edgeView);
         startCameraPreview();
+        
+        /* how can we reconnect the surfaceHolder here? */
     }
 
     @Override
