@@ -1,7 +1,6 @@
 #include <edu_uncc_cci_KnightVisor_EdgeView.h>
 #include <stdlib.h>
 
-
 /* So I know this code is going to look complicated and gross,
    but it really isn't.  Let is sink in and read slowly.
    It basically goes like this:
@@ -20,8 +19,6 @@
     The last eight lines are all that is important to image processing.
  */
 
-
-
 //refer to http://developer.android.com/reference/android/graphics/Color.html
 // (or anywhere else that uses this same scheme. it's just hex of ARGB)
 #define TRANSPARENT 0x00000000
@@ -34,6 +31,13 @@
 typedef unsigned char pixel; //a pixel has range [0..255]
 pixel f[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
 
+int threshold = 98;
+
+JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManually
+    (JNIEnv *env, jobject obj, jint thresh)
+{
+    threshold = thresh;
+}
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     (JNIEnv *env, jobject obj, //these variables are in every JNI call
@@ -96,7 +100,8 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
         gm = gx + gy;
         
         int color = colors[ p % 3];
-        g[p] = gm > 98 ? GREEN : TRANSPARENT;
+        g[p] = gm > threshold ? GREEN : TRANSPARENT;
         //g[p] = (f[p] << 16) | (f[p] << 8) | f[p];
     }
 }
+

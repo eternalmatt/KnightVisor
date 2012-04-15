@@ -10,6 +10,7 @@ import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 public class KnightVisorActivity extends Activity {
@@ -25,13 +26,14 @@ public class KnightVisorActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        
         
         /* set up window so we get full screen */
         Window window = this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
-        edgeView = new EdgeView(this);
         
         /* set up a surfaceView where the camera display will be put */
         SurfaceView surfaceView = new SurfaceView(this);
@@ -46,11 +48,29 @@ public class KnightVisorActivity extends Activity {
             }
         });
         
-        FrameLayout frameLayout = new FrameLayout(this);
+        
+        
+        FrameLayout frameLayout = (FrameLayout)findViewById(R.id.mainFrameLayout);
         frameLayout.addView(surfaceView); //still not entirely sure why this is necessary.
+        
+        edgeView = new EdgeView(this);
         frameLayout.addView(edgeView);
-        setContentView(frameLayout);
-    }    
+        
+        
+        SeekBar seekbar = (SeekBar)this.findViewById(R.id.seekBar);
+        seekbar.setMax(255);
+        seekbar.setProgress(100);
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+            public void onStopTrackingTouch (SeekBar seekBar) { }
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                edgeView.setThresholdManually(progress);
+            } 
+        });
+    
+    }
+    
+    
     
     /* set up camera and configure with proper width/height */
     private void initializeCameraDimensions(int width, int height) {

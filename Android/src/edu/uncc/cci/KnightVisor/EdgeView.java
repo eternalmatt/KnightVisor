@@ -29,7 +29,6 @@ public class EdgeView extends View implements PreviewCallback
     private Rect        canvasRect          = null;
     private Rect        cameraRect          = null;
         
-
     private IntBuffer  intBuffer            = null;
 	private byte[]     cameraPreview        = null;
 	private int        width                = 0;
@@ -44,7 +43,8 @@ public class EdgeView extends View implements PreviewCallback
     }
     
     public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
-	
+    public native void setThresholdManually(int threshold);
+    
 	public EdgeView(Context context)
 	{
 		super(context);
