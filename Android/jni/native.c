@@ -33,11 +33,28 @@ typedef unsigned char pixel; //a pixel has range [0..255]
 pixel f[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
 
 int threshold = 98;
+int color;
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManually
     (JNIEnv *env, jobject obj, jint thresh)
 {
     threshold = thresh;
+}
+
+JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
+    (JNIEnv *env, jobject obj, jint userColor)
+{
+    //apparently, Java's colors are different from C's colors.
+    //this switch will do for now, but I should figure out the formula
+    //and correct it for good.
+    switch (userColor)
+    {
+        case GREEN: color = GREEN;      return;
+        case RED:   color = BLUE;       return;
+        case BLUE:  color = RED;        return;
+            
+        default:    color = userColor;
+    }
 }
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
@@ -86,7 +103,6 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
      see, it looks pretty. just don't start using "n11" in other variable names...
      also, we have to keep this for loop structure the exact same. */
     
-    int colors[] = { RED, GREEN, BLUE };
     
     
     int gx, gy, gm;
@@ -100,8 +116,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
         
         gm = gx + gy;
         
-        int color = colors[ p % 3];
-        g[p] = gm > threshold ? GREEN : TRANSPARENT;
+        g[p] = gm > threshold ? color : TRANSPARENT;
         //g[p] = (f[p] << 16) | (f[p] << 8) | f[p];
     }
 }

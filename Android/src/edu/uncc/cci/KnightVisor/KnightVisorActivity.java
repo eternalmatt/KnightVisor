@@ -1,12 +1,13 @@
 package edu.uncc.cci.KnightVisor;
 
-import java.io.IOException;
-
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
@@ -69,9 +70,9 @@ public class KnightVisorActivity extends Activity {
                 edgeView.setThresholdManually(progress);
             } 
         });
+        
     
     }
-    
     
     
     /* set up camera and configure with proper width/height */
@@ -150,5 +151,32 @@ public class KnightVisorActivity extends Activity {
                     result = size;
         
         return result;
+    }
+    
+    
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        this.getMenuInflater().inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.red:
+                edgeView.setColorSelected(Color.RED);
+                return true;
+            case R.id.green:
+                edgeView.setColorSelected(Color.GREEN);
+                return true;
+            case R.id.blue:
+                edgeView.setColorSelected(Color.BLUE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
