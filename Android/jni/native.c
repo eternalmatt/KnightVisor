@@ -32,7 +32,9 @@
 #define RED         0xFF0000FF
 
 typedef unsigned char pixel; //a pixel has range [0..255]
-pixel f[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
+pixel image[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
+
+void imfilter(int*,int*,int,int);
 
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
@@ -55,7 +57,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     for(p = 0; p < length; ++p)
     {
         integer = (int)fbytearray[p];    //cast to int
-        f[p] = (pixel) integer + 128;    //add 128 so range is [0..255] and not [-128..127]
+        image[p] = (pixel) integer + 128;    //add 128 so range is [0..255] and not [-128..127]
         
         /* the adding 128 might be unecessary if the math stays the same
          * everywhere (i.e. values don't matter until absolute final step)
@@ -63,15 +65,15 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     }
     (*env)->ReleaseByteArrayElements(env, frame, fbytearray, JNI_COMMIT);
     
-#define n11 (f[p-w-1])
-#define n12 (f[p-w  ])
-#define n13 (f[p-w+1])
-#define n21 (f[p  -1])
-#define n22 (f[p    ])
-#define n23 (f[p  +1])
-#define n31 (f[p+w-1])
-#define n32 (f[p+w  ])
-#define n33 (f[p+w+1])
+#define n11 (f[0-w-1])
+#define n12 (f[0-w  ])
+#define n13 (f[0-w+1])
+#define n21 (f[-1])
+#define n22 (f[0  ])
+#define n23 (f[+1])
+#define n31 (f[w-1])
+#define n32 (f[w  ])
+#define n33 (f[w+1])
     
     /* these definitions are so we can refer to a window like so:
      n11 n12 n13
@@ -85,7 +87,10 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     
     
     int gx, gy, gm;
-    for (p = start; p < stop; ++p)
+    pixel *f = image;
+    const pixel *pointer_start = f;
+    const pixel *pointer_stop = f + stop;
+    for (; f != pointer_stop; ++f)
     {
         pixel pixels[] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
         //sort(pixels, 9);
@@ -96,7 +101,38 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
         gm = gx + gy;
         
         int color = colors[ p % 3];
-        g[p] = gm > 98 ? GREEN : TRANSPARENT;
+        g[f - pointer_start] = gm > 98 ? GREEN : TRANSPARENT;
         //g[p] = (f[p] << 16) | (f[p] << 8) | f[p];
     }
+    
+    //free(pointer_start);
+}
+
+
+#define m11 (f[p-w-1] * k[1])
+#define m12 (f[p-w  ] * k[2])
+#define m13 (f[p-w+1] * k[3])
+#define m21 (f[p  -1] * k[4])
+#define m22 (f[p    ] * k[5])
+#define m23 (f[p  +1] * k[6])
+#define m31 (f[p+w-1] * k[7])
+#define m32 (f[p+w-1] * k[8])
+#define m33 (f[p+w-1] * k[9])
+
+#define M_SUM (m11 + m12 + m13 + m21 + m22 + m23 + m31 + m32 + m33)
+#define CONVOLUTION (M_SUM / 9)
+
+/* I have no idea if this works.
+ * In theory, it is a generic imfilter implementation
+ * for a 3x3 kernel (flattened in a 1x9 array).
+ */
+void imfilter(int *f, int *k, int start, int stop)
+{
+	int g[2000*3000], p;
+    
+	for(p=start; p<stop; ++p)
+        ;//	g[p] = CONVOLUTION; //need to adjust macros.
+    
+	for(p=start; p<stop; ++p)
+		f[p] = g[p];
 }
