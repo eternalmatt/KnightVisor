@@ -61,13 +61,13 @@ public class KnightVisorActivity extends Activity {
         
         
         SeekBar seekbar = (SeekBar)this.findViewById(R.id.seekBar);
-        seekbar.setMax(255);        //max is 255. might want to decrease this.
-        seekbar.setProgress(100);   //default threshold is 100
+        seekbar.setMax(150); 
+        seekbar.setProgress(75);
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             public void onStartTrackingTouch(SeekBar seekBar) { }
             public void onStopTrackingTouch (SeekBar seekBar) { }
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                edgeView.setThresholdManually(progress);
+            public void onProgressChanged   (SeekBar seekBar, int progress, boolean fromUser) {
+                edgeView.setThresholdManually(150 - progress);
             } 
         });
         

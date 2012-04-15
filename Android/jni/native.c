@@ -33,7 +33,7 @@ typedef unsigned char pixel; //a pixel has range [0..255]
 pixel f[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
 
 int threshold = 98;
-int color;
+int color     = GREEN;
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManually
     (JNIEnv *env, jobject obj, jint thresh)
