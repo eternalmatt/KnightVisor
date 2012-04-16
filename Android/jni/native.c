@@ -36,13 +36,13 @@ int threshold = 98;
 int color     = GREEN;
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManually
-    (JNIEnv *env, jobject obj, jint thresh)
+    (JNIEnv *env, jobject thiz, jint thresh)
 {
     threshold = thresh;
 }
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
-    (JNIEnv *env, jobject obj, jint userColor)
+    (JNIEnv *env, jobject thiz, jint userColor)
 {
     /* For some reason the colors get mixed up and we
      * have to switch the red and blue channels  */
@@ -58,7 +58,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
 }
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
-    (JNIEnv *env, jobject obj, //these variables are in every JNI call
+    (JNIEnv *env, jobject thiz, //these variables are in every JNI call
      
      /* the input byte[] camera frame, width, height, and output int[] buffer */
      jbyteArray frame, jint width, jint height, jobject buffer)
