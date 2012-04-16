@@ -31,11 +31,11 @@
 #define BLUE        0xFFFF0000
 #define RED         0xFF0000FF
 
-typedef unsigned char pixel; //a pixel has range [0..255]
+typedef short pixel; //a pixel has range [0..255]
 pixel image[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
 
 void imfilter(int*,int*,int,int);
-int median(int a[]);
+pixel median(pixel a[]);
 
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
@@ -83,25 +83,26 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
      
      see, it looks pretty. just don't start using "n11" in other variable names...
      also, we have to keep this for loop structure the exact same. */
+      
     
-    int colors[] = { RED, GREEN, BLUE };
-    
-    
-    int gx, gy, gm;
     pixel *f = image;
     const pixel *pointer_start = f;
     const pixel *pointer_stop = f + stop;
-    for (; f != pointer_stop; ++f)
+    for(; f != pointer_stop; ++f)
     {
-        pixel pixels[] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
-        //sort(pixels, 9);
-        
+      pixel pixels[] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
+      int m = median(pixels);
+      *f = m;
+    }
+    
+    int gx, gy, gm;
+    for(f = pointer_start; f != pointer_stop; ++f)
+    {
         gx = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
         gy = n31 + (n32 << 1) + n33 - (n11 + (n12 << 1) + n13);
         
         gm = gx + gy;
         
-        int color = colors[ p % 3];
         g[f - pointer_start] = gm > 98 ? GREEN : TRANSPARENT;
         //g[p] = (f[p] << 16) | (f[p] << 8) | f[p];
     }
@@ -109,9 +110,10 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     //free(pointer_start);
 }
 
-int median(int a[])
+pixel median(pixel a[])
 {
-  int i, k, mins[6] = {a[0], 256, 256, 256, 256, 256};
+  int i, k;
+  pixel mins[6] = {a[0], 256, 256, 256, 256, 256};
   for (i = 1; i < 9; ++i) {
     for(k=4; a[i] < mins[k] && k >= 0; --k) {
       mins[k+1] = mins[k];
