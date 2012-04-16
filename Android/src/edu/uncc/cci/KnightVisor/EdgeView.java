@@ -45,6 +45,7 @@ public class EdgeView extends View implements PreviewCallback
     public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
     public native void setThresholdManually(int threshold);
     public native void setColorSelected(int color);
+    public native void setMedianFiltering(boolean on);
     
 	public EdgeView(Context context)
 	{

@@ -4,15 +4,27 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
+    <CheckBox
+        android:id="@+id/medianCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true" 
+        android:text=""/>
+    
     <SeekBar
         android:id="@+id/seekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/medianCheckBox" />
     
     <FrameLayout
         android:id="@+id/mainFrameLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/seekBar" />
+        android:layout_below="@id/medianCheckBox"
+        android:animationCache="true"
+        android:persistentDrawingCache="all" />
+
 
 </RelativeLayout>
