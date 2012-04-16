@@ -1,6 +1,8 @@
 #include <edu_uncc_cci_KnightVisor_EdgeView.h>
 #include <stdlib.h>
 
+#include "dip-toolbox.c"
+
 /* So I know this code is going to look complicated and gross,
    but it really isn't.  Let is sink in and read slowly.
    It basically goes like this:
@@ -30,7 +32,8 @@
 
 
 typedef unsigned char pixel; //a pixel has range [0..255]
-pixel f[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
+const int nPixels = 3000 * 2000;
+pixel f[nPixels]; //I really just want the biggest possible array to fit biggest posssible picture.
 
 int threshold = 98;
 int color     = GREEN;
@@ -38,7 +41,8 @@ int color     = GREEN;
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManually
     (JNIEnv *env, jobject thiz, jint thresh)
 {
-    threshold = thresh;
+	// for automatic thresholding, let thresh be -1
+    threshold = thresh >= 0 ? thresh : otsuThreshold(f, nPixels);
 }
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
