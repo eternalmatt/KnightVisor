@@ -35,6 +35,7 @@ typedef unsigned char pixel; //a pixel has range [0..255]
 pixel image[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
 
 void imfilter(int*,int*,int,int);
+int median(int a[]);
 
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
@@ -106,6 +107,19 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     }
     
     //free(pointer_start);
+}
+
+int median(int a[])
+{
+  int i, k, mins[6] = {a[0], 256, 256, 256, 256, 256};
+  for (i = 1; i < 9; ++i) {
+    for(k=4; a[i] < mins[k] && k >= 0; --k) {
+      mins[k+1] = mins[k];
+    }
+    mins[k+1] = a[i];
+  }    
+  
+  return mins[4];
 }
 
 
