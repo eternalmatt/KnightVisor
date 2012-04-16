@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
@@ -18,18 +17,10 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 public class KnightVisorActivity extends Activity {
 
-    /* lol, alphabetical order */
-    private Camera        camera            = null;
-    private EdgeView      edgeView          = null;
-    private SurfaceView   surfaceView       = null;
-    private SurfaceHolder surfaceHolder     = null;
-
-    private boolean cameraConfigured        = false;
-    private boolean inPreview               = false;
+    EdgeView edgeView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,27 +35,70 @@ public class KnightVisorActivity extends Activity {
         
         
         /* set up a surfaceView where the camera display will be put */
-        surfaceView   = new SurfaceView(this);
-        surfaceHolder = surfaceView.getHolder();
+        SurfaceView   surfaceView   = new SurfaceView(this);
+        SurfaceHolder surfaceHolder = surfaceView.getHolder();
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        surfaceHolder.addCallback(new SurfaceHolder.Callback() {
-            public void surfaceDestroyed(SurfaceHolder holder) { }
-            public void surfaceCreated  (SurfaceHolder holder) { }
-            public void surfaceChanged  (SurfaceHolder holder, int format, int width, int height) {
-                initializeCameraDimensions(width, height);
-                startCameraPreview();
+        surfaceHolder.addCallback(new SurfaceHolder.Callback() 
+        {
+            private Camera camera = null;
+            
+            public void surfaceDestroyed(SurfaceHolder holder) 
+            {
+                if (camera == null) return;
+                
+                try { 
+                    camera.setPreviewDisplay(null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                
+                camera.stopPreview();
+                camera.setPreviewCallback(null);
+                camera.release();
+                camera = null;
+            }
+            
+            public void surfaceCreated  (SurfaceHolder holder)
+            {   
+                camera = Camera.open();
+                
+                try {
+                    camera.setPreviewDisplay(holder);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                camera.setPreviewCallback(edgeView);
+                camera.startPreview();
+            }
+            
+            public void surfaceChanged  (SurfaceHolder holder, int format, int width, int height) 
+            {
+                if (camera == null) 
+                    return;
+
+                Camera.Parameters parameters = camera.getParameters();
+                Camera.Size       size       = getBestPreviewSize(width, height, parameters);
+
+                if (size == null) 
+                    return;
+                
+                parameters.setPreviewSize(size.width, size.height);
+                parameters.setPreviewFormat(ImageFormat.NV21);
+                camera.setParameters(parameters);
+                camera.startPreview();
             }
         });
         
         
         FrameLayout frameLayout = (FrameLayout)findViewById(R.id.mainFrameLayout);
-        frameLayout.addView(surfaceView); //still not entirely sure why this is necessary.
+        frameLayout.addView(surfaceView);
         
         edgeView = new EdgeView(this);
         frameLayout.addView(edgeView);
         
         
-        SeekBar seekbar = (SeekBar)this.findViewById(R.id.seekBar);
+        SeekBar seekbar = (SeekBar)findViewById(R.id.seekBar);
         seekbar.setMax(150); 
         seekbar.setProgress(75);
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
@@ -79,90 +113,11 @@ public class KnightVisorActivity extends Activity {
         CheckBox checkbox = (CheckBox)findViewById(R.id.medianCheckBox);
         checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
-                //surfaceView.setVisibility(checked ? SurfaceView.VISIBLE : SurfaceView.INVISIBLE);
                 edgeView.setMedianFiltering(checked);
             }
         });
-    
     }
     
-    
-    /* set up camera and configure with proper width/height */
-    private void initializeCameraDimensions(int width, int height) {
-        if (cameraConfigured || camera == null) 
-            return;
-        
-        try {
-            /* we're going to have the camera below whatever EdgeView doesn't draw */
-            camera.setPreviewDisplay(surfaceHolder);
-        } catch (Throwable t) {
-            Log.e("PreviewDemo-surfaceCallback", "Exception in setPreviewDisplay()", t);
-            Toast.makeText(this, t.getMessage(), Toast.LENGTH_LONG).show();
-        }
-
-        Camera.Parameters parameters = camera.getParameters();
-        Camera.Size       size       = getBestPreviewSize(width, height, parameters);
-
-        if (size == null) 
-            return;
-        
-        parameters.setPreviewSize(size.width, size.height);
-        parameters.setPreviewFormat(ImageFormat.NV21);
-        camera.setParameters(parameters);
-        cameraConfigured = true;
-    }
-    
-    /* start preview as long as the camera is configured */
-    private void startCameraPreview() {
-        if (cameraConfigured && camera != null) {
-            camera.startPreview();
-            inPreview = true;
-        }
-    }
-
-    
-    /* life cycle functions taking care of camera */
-    
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        camera = Camera.open();
-        camera.setPreviewCallback(edgeView);
-        startCameraPreview();
-        
-        try {
-            camera.setPreviewDisplay(surfaceHolder);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        /* how can we reconnect the surfaceHolder here? */
-    }
-
-    @Override
-    public void onPause() {
-        if (inPreview) {
-            camera.stopPreview();
-            inPreview = false;
-        }
-        
-        if (camera != null)
-        {
-            camera.setPreviewCallback(null);
-            try {
-                camera.setPreviewDisplay(null);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            camera.release();
-            camera = null;
-        }
-
-        super.onPause();
-    }
-
     
     /* helper function to set up the display */
     private Camera.Size getBestPreviewSize(int width, int height, Camera.Parameters parameters) {
@@ -178,12 +133,13 @@ public class KnightVisorActivity extends Activity {
     }
     
     
-
+    /* options menu */
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         this.getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
     
     @Override

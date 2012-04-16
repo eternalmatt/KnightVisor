@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
+import android.util.Log;
 import android.view.View;
 
 public class EdgeView extends View implements PreviewCallback
@@ -89,9 +90,11 @@ public class EdgeView extends View implements PreviewCallback
 				    bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 				}
 				
-				System.arraycopy(yuv, 0, cameraPreview, 0, length);
-	
-				
+				if (yuv.length < cameraPreview.length)
+				    Log.e(TAG, "The camera frame length is too short!");
+				else
+			        System.arraycopy(yuv, 0, cameraPreview, 0, length);			        
+			    
 			} finally {
 				cameraPreviewLock.unlock();
 				postInvalidate();
