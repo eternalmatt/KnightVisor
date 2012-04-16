@@ -12,8 +12,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -54,6 +52,7 @@ public class KnightVisorActivity extends Activity {
         });
         
         
+        
         FrameLayout frameLayout = (FrameLayout)findViewById(R.id.mainFrameLayout);
         frameLayout.addView(surfaceView); //still not entirely sure why this is necessary.
         
@@ -72,13 +71,6 @@ public class KnightVisorActivity extends Activity {
             } 
         });
         
-        
-        CheckBox checkbox = (CheckBox)findViewById(R.id.medianCheckBox);
-        checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
-                edgeView.setMedianFiltering(checked);
-            }
-        });
     
     }
     
