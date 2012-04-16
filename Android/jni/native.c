@@ -3,7 +3,7 @@
 
 
 /* So I know this code is going to look complicated and gross,
-   but it really isn't.  Let is sink in and read slowly.
+   but it really isn't.  Let it sink in and read slowly.
    It basically goes like this:
         1. Get access to Java's memory.
         2. Create a local copy of input frame for performance reasons
@@ -55,7 +55,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     
     
     /* create a local copy so it is faster */
-    for(p = 0; p < length; ++p)
+    for (p = 0; p < length; ++p)
     {
         integer = (int)fbytearray[p];    //cast to int
         image[p] = (pixel) integer + 128;    //add 128 so range is [0..255] and not [-128..127]
