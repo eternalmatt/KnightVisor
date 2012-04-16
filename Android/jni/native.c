@@ -81,7 +81,9 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     const int start  = w + 1;               //we can't operate on an entire image
     const int stop   = length - w - 1;      //we can't operate on an entire image.
     int p, integer;
-    
+    pixel *pointer_start = image;
+    pixel *pointer_stop  = image + stop;    
+
     
     /* create a local copy so it is faster */
     for (p = start; p < stop; ++p)
@@ -114,8 +116,6 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
      see, it looks pretty. just don't start using "n11" in other variable names...
      also, we have to keep this for loop structure the exact same. */
       
-    pixel *pointer_start = image;
-    pixel *pointer_stop  = image + stop;    
     pixel *f;
     if (medianEnabled)
     for(f = pointer_start; f != pointer_stop; ++f)
