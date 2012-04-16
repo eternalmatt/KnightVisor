@@ -9,14 +9,32 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true" 
-        android:text=""/>
+        android:checked="false" 
+        android:text="" />
+
+	<CheckBox
+        android:id="@+id/automaticCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"        
+        android:layout_toRightOf="@id/medianCheckBox"
+        android:checked="false" 
+        android:text="" />
+    
+	<CheckBox
+        android:id="@+id/grayscaleCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/automaticCheckBox"
+        android:checked="false" 
+        android:text="" />
+   
     
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/medianCheckBox" />
+        android:layout_toRightOf="@id/grayscaleCheckBox" />
     
     <FrameLayout
         android:id="@+id/mainFrameLayout"

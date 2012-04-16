@@ -109,13 +109,29 @@ public class KnightVisorActivity extends Activity {
             } 
         });
         
-        
-        CheckBox checkbox = (CheckBox)findViewById(R.id.medianCheckBox);
-        checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CheckBox)findViewById(R.id.medianCheckBox))
+        .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
                 edgeView.setMedianFiltering(checked);
             }
         });
+        
+        
+        ((CheckBox)findViewById(R.id.automaticCheckBox))
+        .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
+                edgeView.automaticThresholding(checked);
+            }
+        });
+        
+        
+        ((CheckBox)findViewById(R.id.grayscaleCheckBox))
+        .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
+                edgeView.grayscaleOnly(checked);
+            }
+        });
+        
     }
     
     

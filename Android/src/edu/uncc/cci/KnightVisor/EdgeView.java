@@ -38,6 +38,8 @@ public class EdgeView extends View implements PreviewCallback
     public native void setThresholdManually(int threshold);
     public native void setColorSelected(int color);
     public native void setMedianFiltering(boolean on);
+    public native void grayscaleOnly(boolean gray);
+    public native void automaticThresholding(boolean automatic);
     
 	public EdgeView(Context context)
 	{

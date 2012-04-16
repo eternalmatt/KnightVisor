@@ -29,15 +29,19 @@
 #define BLUE        0xFFFF0000
 #define RED         0xFF0000FF
 
-typedef short pixel; //a pixel has range [0..255]
+typedef short pixel;
 pixel image[3000 * 2000]; //I really just want the biggest possible array to fit biggest posssible picture.
 
-void imfilter(int*,int*,int,int);
+void imfilter(int*,int*,int,int,int);
 pixel median(pixel a[]);
 
 bool medianEnabled = false;
-int threshold = 98;
-int color     = GREEN;
+bool grayscale     = false;
+bool automaticT    = false;
+int threshold      = 100;
+int color          = GREEN;
+
+/* REALLY REALLY UGLY FUNCTION NAMES TO GET USER INPUT FROM THE JAVA GUI */
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setMedianFiltering
     (JNIEnv *env, jobject obj, jboolean med)
@@ -49,6 +53,18 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManual
     (JNIEnv *env, jobject obj, jint thresh)
 {
     threshold = thresh;
+}
+
+JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_grayscaleOnly
+(JNIEnv *env, jobject obj, jboolean gray)
+{
+    grayscale = gray;
+}
+
+JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_automaticThresholding
+(JNIEnv *env, jobject obj, jboolean autoT)
+{
+    automaticT = autoT;
 }
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
@@ -67,6 +83,9 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
           | alphaChannel;
 }
 
+
+/* the main image processing function that gets called by java */
+
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     (JNIEnv *env, jobject obj, //these variables are in every JNI call
      
@@ -80,20 +99,16 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     const int length = width * height;      //optimize out the multiply
     const int start  = w + 1;               //we can't operate on an entire image
     const int stop   = length - w - 1;      //we can't operate on an entire image.
-    int p, integer;
-    pixel *pointer_start = image;
-    pixel *pointer_stop  = image + stop;    
+    pixel *pointer_start = image;           //used in the for loops
+    pixel *pointer_stop  = image + stop;    //used in the for loops
+    pixel *f;
 
     
     /* create a local copy so it is faster */
+    int p;
     for (p = start; p < stop; ++p)
     {
-        integer = (int)fbytearray[p];    //cast to int
-        image[p] = (pixel) integer + 128;    //add 128 so range is [0..255] and not [-128..127]
-        
-        /* the adding 128 might be unecessary if the math stays the same
-         * everywhere (i.e. values don't matter until absolute final step)
-         */
+        image[p] = fbytearray[p] & 0x000000FF; /* only copy 0..255 */
     }
     (*env)->ReleaseByteArrayElements(env, frame, fbytearray, JNI_COMMIT);
     
@@ -101,31 +116,34 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
 #define n11 (f[0-w-1])
 #define n12 (f[0-w  ])
 #define n13 (f[0-w+1])
-#define n21 (f[-1])
-#define n22 (f[0  ])
-#define n23 (f[+1])
-#define n31 (f[w-1])
-#define n32 (f[w  ])
-#define n33 (f[w+1])
-    
-    /* these definitions are so we can refer to a window like so:
-     n11 n12 n13
-     n21 n22 n23
-     n31 n32 n33
-     
-     see, it looks pretty. just don't start using "n11" in other variable names...
-     also, we have to keep this for loop structure the exact same. */
+#define n21 (f[   -1])
+#define n22 (f[    0])
+#define n23 (f[   +1])
+#define n31 (f[  w-1])
+#define n32 (f[  w  ])
+#define n33 (f[  w+1])
+    /* 
+     these definitions are so we can refer to a window like so:
+         n11 n12 n13
+         n21 n22 n23
+         n31 n32 n33
+    */
       
-    pixel *f;
     if (medianEnabled)
-    for(f = pointer_start; f != pointer_stop; ++f)
     {
-      pixel pixels[] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
-      int m = median(pixels);
-      *f = m;
+        for(f = pointer_start; f != pointer_stop; ++f)
+        {
+          pixel pixels[] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
+          f[0] = median(pixels);
+        }
     }
     
-    int gx, gy, gm;
+    if (automaticT)
+    {
+        /* do automatic thresholding. and set "threshold" */
+    }
+    
+    int gx, gy, gm, background;
     for(f = pointer_start; f != pointer_stop; ++f)
     {
         gx = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
@@ -133,7 +151,17 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
         
         gm = gx + gy;
         
-        g[f - pointer_start] = gm > threshold ? color : TRANSPARENT;
+        if (grayscale)
+        {
+            const int a = f[0];
+            background = (a << 0) | ( a << 8) | (a << 16) | 0xFF000000;
+        }
+        else
+        {
+            background = TRANSPARENT;
+        }
+        
+        g[f - pointer_start] = gm > threshold ? color : background;
     }
 }
 
@@ -142,9 +170,9 @@ pixel median(pixel a[])
   int i, k;
   pixel mins[6] = {a[0], 256, 256, 256, 256, 256};
   for (i = 1; i < 9; ++i) {
-    for(k=4; a[i] < mins[k] && k >= 0; --k) {
-      mins[k+1] = mins[k];
-    }
+    for(k=4; a[i] < mins[k] && k >= 0; --k)
+        mins[k+1] = mins[k];
+      
     mins[k+1] = a[i];
   }    
   
@@ -167,14 +195,13 @@ pixel median(pixel a[])
 
 /* I have no idea if this works.
  * In theory, it is a generic imfilter implementation
- * for a 3x3 kernel (flattened in a 1x9 array).
- */
-void imfilter(int *f, int *k, int start, int stop)
+ * for a 3x3 kernel (flattened in a 1x9 array) */
+void imfilter(int *f, int *k, int start, int stop, int w)
 {
 	int g[2000*3000], p;
     
 	for(p=start; p<stop; ++p)
-        ;//	g[p] = CONVOLUTION; //need to adjust macros.
+        g[p] = CONVOLUTION;
     
 	for(p=start; p<stop; ++p)
 		f[p] = g[p];
