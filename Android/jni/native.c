@@ -110,7 +110,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     {
         image[p] = fbytearray[p] & 0x000000FF; /* only copy 0..255 */
     }
-    (*env)->ReleaseByteArrayElements(env, frame, fbytearray, JNI_COMMIT);
+    (*env)->ReleaseByteArrayElements(env, frame, fbytearray, JNI_ABORT);
     
 
 #define n11 (f[0-w-1])

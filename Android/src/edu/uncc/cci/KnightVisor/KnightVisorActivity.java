@@ -88,6 +88,20 @@ public class KnightVisorActivity extends Activity {
                 camera.setParameters(parameters);
                 camera.startPreview();
             }
+            
+            /* helper function to set up the display */
+            private Camera.Size getBestPreviewSize(int width, int height, Camera.Parameters parameters) 
+            {
+                Camera.Size result = null;
+
+                /* trying to get largest possible size */
+                for (Camera.Size size : parameters.getSupportedPreviewSizes())
+                    if (size.width <= width && size.height <= height)
+                        if (result == null || size.width * size.height > result.width * result.height)
+                            result = size;
+                
+                return result;
+            }
         });
         
         
@@ -132,20 +146,6 @@ public class KnightVisorActivity extends Activity {
             }
         });
         
-    }
-    
-    
-    /* helper function to set up the display */
-    private Camera.Size getBestPreviewSize(int width, int height, Camera.Parameters parameters) {
-        Camera.Size result = null;
-
-        /* trying to get largest possible size */
-        for (Camera.Size size : parameters.getSupportedPreviewSizes())
-            if (size.width <= width && size.height <= height)
-                if (result == null || size.width * size.height > result.width * result.height)
-                    result = size;
-        
-        return result;
     }
     
     

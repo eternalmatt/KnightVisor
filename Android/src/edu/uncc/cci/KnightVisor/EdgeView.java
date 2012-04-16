@@ -92,6 +92,9 @@ public class EdgeView extends View implements PreviewCallback
 				    bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 				}
 				
+				/* TODO: lop off the first N rows based on how many pixels
+				 * are being occupied by the GUI */
+				
 				if (yuv.length < cameraPreview.length)
 				    Log.e(TAG, "The camera frame length is too short!");
 				else
