@@ -185,8 +185,7 @@ public class EdgeView extends View implements PreviewCallback
 		if (cameraPreview != null && cameraPreviewLock.tryLock())
 			try {
 			    if (canvasRect == null)
-			        canvasRect = new Rect(0,0,canvas.getWidth(), canvas.getHeight());
-			    
+			        canvasRect = canvas.getClipBounds();
 			    
 	            Log.d(TAG, "Before native processing");
 	            
