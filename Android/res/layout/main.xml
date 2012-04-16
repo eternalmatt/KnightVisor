@@ -24,7 +24,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/medianCheckBox"
         android:animationCache="true"
-        android:persistentDrawingCache="all" />
+        android:persistentDrawingCache="all">
+        
+       <!--  TODO: add surfaceView and edgeview here in xml  -->
+        
+	</FrameLayout>
 
 
 </RelativeLayout>

@@ -1,5 +1,7 @@
 package edu.uncc.cci.KnightVisor;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
@@ -23,6 +25,7 @@ public class KnightVisorActivity extends Activity {
     /* lol, alphabetical order */
     private Camera        camera            = null;
     private EdgeView      edgeView          = null;
+    private SurfaceView   surfaceView       = null;
     private SurfaceHolder surfaceHolder     = null;
 
     private boolean cameraConfigured        = false;
@@ -41,7 +44,7 @@ public class KnightVisorActivity extends Activity {
         
         
         /* set up a surfaceView where the camera display will be put */
-        SurfaceView surfaceView = new SurfaceView(this);
+        surfaceView   = new SurfaceView(this);
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         surfaceHolder.addCallback(new SurfaceHolder.Callback() {
@@ -76,6 +79,7 @@ public class KnightVisorActivity extends Activity {
         CheckBox checkbox = (CheckBox)findViewById(R.id.medianCheckBox);
         checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
+                //surfaceView.setVisibility(checked ? SurfaceView.VISIBLE : SurfaceView.INVISIBLE);
                 edgeView.setMedianFiltering(checked);
             }
         });
@@ -127,6 +131,12 @@ public class KnightVisorActivity extends Activity {
         camera.setPreviewCallback(edgeView);
         startCameraPreview();
         
+        try {
+            camera.setPreviewDisplay(surfaceHolder);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         /* how can we reconnect the surfaceHolder here? */
     }
 
@@ -140,6 +150,12 @@ public class KnightVisorActivity extends Activity {
         if (camera != null)
         {
             camera.setPreviewCallback(null);
+            try {
+                camera.setPreviewDisplay(null);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             camera.release();
             camera = null;
         }
