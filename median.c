@@ -28,20 +28,14 @@ int median(int A [])
 	int mins [6] = {A[0], 256, 256, 256, 256, 256};
 	int i, k;
 	for (i = 1; i <= 4; ++i) {
-		k = i - 1;
-		while (A[i] < mins[k]) {
+		for (k = i - 1; ((k >= 0) && (A[i] < mins[k])); --k) {
 			mins[k+1] = mins[k];
-			--k;
-			if (k < 0) break;
 		}
 		mins[k+1] = A[i];
 	}
 	for (i = 5; i < 9; ++i) {
-		k = 4;
-		while (A[i] < mins[k]) {
+		for (k = 4; ((k >= 0) && (A[i] < mins[k])); --k) {
 			mins[k+1] = mins[k];
-			--k;
-			if (k < 0) break;
 		}
 		mins[k+1] = A[i];
 	}
