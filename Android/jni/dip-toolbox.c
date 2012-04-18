@@ -12,7 +12,8 @@ void logTransform(pixel f [], int nPixels)
 	}
 }
 
-// return threshold value automatically calculated by Otsu's method
+// return thresholded image such that only intensities above threshold remain
+// and the rest go to 0
 int otsuThreshold(pixel f [], int nPixels)
 {	
 	// calculate histogram
@@ -51,10 +52,12 @@ int otsuThreshold(pixel f [], int nPixels)
 			maxIndex = i;
 		}
 	}
+
+	// maxIndex is the threshold valeu
 	
-	// return intensity value of maximum variance
-	return maxIndex;
+	for (i = 0; i < nPixels; ++i) {
+		f[i] = f[i] > maxIndex ? f[i] : 0;
+	}
 }
 
-
-void blendThreshold(pixel f [], int numel
+void greenify(pixel f [], int nPixels, 
