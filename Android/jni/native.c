@@ -153,6 +153,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
 		int totalWeightCumSum = 0;
 		cumSum[0] = histogram[0];
 		weightCumSum[0] = histogram[0];
+		int i;
 		for (i = 1; i < 256; ++i) {
 			cumSum[i] = cumSum[i-1] + histogram[i];
 			weightCumSum[i] = weightCumSum[i-1] + i * histogram[i];
@@ -160,7 +161,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
 		}
 		
 		// find maximum Otsu variance
-		int maxVariance = -65536; // there is probably a better way to get the smallest value
+		int maxVariance = 0; // I am assuming I get no negative variances...
 		int maxIndex = 0;
 		int w0, w1, variance;
 		float u0, u1;
@@ -178,12 +179,13 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
 			}
 		}
 
-		// maxIndex is the threshold valeu
-		
-		for(f = pointer_start; f != pointer_stop; ++f) {
-			n22 = n22 > maxIndex ? n22 : 0;
-		}
+		threshold = maxIndex; // maxIndex is the threshold value
     }
+	
+	// log intensity transform
+	for(f = pointer_start; f != pointer_stop; ++f) {
+		n22 = logmap[n22];
+	}
     
     int gx, gy, gm, background;
     for(f = pointer_start; f != pointer_stop; ++f)
@@ -196,14 +198,22 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
         if (grayscale)
         {
             const int a = f[0];
-            background = (a << 0) | ( a << 8) | (a << 16) | 0xFF000000;
+            background = (a << 0) | (a << 8) | (a << 16) | 0xFF000000;
         }
         else
         {
             background = TRANSPARENT;
         }
         
-        g[f - pointer_start] = gm > threshold ? color : background;
+		// this can be taken outside the for loop, but first make sure the code below is correct
+		if (color == GREEN)
+			g[f - pointer_start] = gm > threshold ? (((int)gm) << 2) & color | TRANSPARENT : background;
+		else if (color == BLUE)
+			g[f - pointer_start] = gm > threshold ? (((int)gm) << 4) & color | TRANSPARENT : background;
+		else if (color == RED)
+			g[f - pointer_start] = gm > threshold ? ((int)gm) & color | TRANSPARENT : background;
+		else // if you decide to add more colors
+			g[f - pointer_start] = gm > threshold ? color : background;
     }
 }
 
