@@ -1,7 +1,7 @@
 #include <edu_uncc_cci_KnightVisor_EdgeView.h>
 #include <stdlib.h>
 
-#include "dip-toolbox.c"
+#include "dip-toolbox.h"
 
 /* So I know this code is going to look complicated and gross,
    but it really isn't.  Let is sink in and read slowly.
@@ -30,12 +30,10 @@
 #define BLUE        0xFFFF0000
 #define RED         0xFF0000FF
 
+#define nPixels  3000*2000
+pixel f [nPixels]; //I really just want the biggest possible array to fit biggest posssible picture.
 
-typedef unsigned char pixel; //a pixel has range [0..255]
-const int nPixels = 3000 * 2000;
-pixel f[nPixels]; //I really just want the biggest possible array to fit biggest posssible picture.
-
-int threshold = 98;
+int threshold;// = 98;
 int color     = GREEN;
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManually
@@ -112,15 +110,15 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     int gx, gy, gm;
     for (p = start; p < stop; ++p)
     {
-        pixel pixels[] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
+        //pixel pixels[] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
         //sort(pixels, 9);
         
         gx = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
         gy = n31 + (n32 << 1) + n33 - (n11 + (n12 << 1) + n13);
         
-        gm = gx + gy;
+        gm = (gx + gy) /2;
         
-        g[p] = gm > threshold ? color : TRANSPARENT;
+        g[p] = gm > threshold ? color + gm*TRANSPARENT : TRANSPARENT;
         //g[p] = (f[p] << 16) | (f[p] << 8) | f[p];
     }
 }
