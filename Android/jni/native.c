@@ -207,9 +207,9 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
         
 		// this can be taken outside the for loop, but first make sure the code below is correct
 		if (color == GREEN)
-			g[f - pointer_start] = gm > threshold ? (((int)gm) << 2) & color | TRANSPARENT : background;
+			g[f - pointer_start] = gm > threshold ? (((int)gm) << 8) & color | TRANSPARENT : background;
 		else if (color == BLUE)
-			g[f - pointer_start] = gm > threshold ? (((int)gm) << 4) & color | TRANSPARENT : background;
+			g[f - pointer_start] = gm > threshold ? (((int)gm) << 16) & color | TRANSPARENT : background;
 		else if (color == RED)
 			g[f - pointer_start] = gm > threshold ? ((int)gm) & color | TRANSPARENT : background;
 		else // if you decide to add more colors
