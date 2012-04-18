@@ -19,15 +19,24 @@
         android:layout_toRightOf="@id/medianCheckBox"
         android:checked="false" 
         android:text="" />
+	
+	<CheckBox
+        android:id="@+id/logarithmicCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/automaticCheckBox"
+        android:checked="false" 
+        android:text="" />   
     
 	<CheckBox
         android:id="@+id/grayscaleCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/automaticCheckBox"
+        android:layout_toRightOf="@id/logarithmicCheckBox"
         android:checked="false" 
         android:text="" />
-   
+	
+
     
     <SeekBar
         android:id="@+id/seekBar"
@@ -40,9 +49,12 @@
         android:id="@+id/mainFrameLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/medianCheckBox"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/medianCheckBox"
         android:animationCache="true"
-        android:persistentDrawingCache="all">
+        android:persistentDrawingCache="all" >
         
        <!--  TODO: add surfaceView and edgeview here in xml  -->
         

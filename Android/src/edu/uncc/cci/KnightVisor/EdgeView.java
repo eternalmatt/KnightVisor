@@ -39,6 +39,7 @@ public class EdgeView extends View implements Camera.PreviewCallback
     public native void setMedianFiltering(boolean on);
     public native void grayscaleOnly(boolean gray);
     public native void automaticThresholding(boolean automatic);
+    public native void logarithmicTransform(boolean on);
     
 	public EdgeView(Context context)
 	{

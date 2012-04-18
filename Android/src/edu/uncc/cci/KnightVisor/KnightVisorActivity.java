@@ -3,6 +3,7 @@ package edu.uncc.cci.KnightVisor;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
@@ -17,10 +18,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 public class KnightVisorActivity extends Activity {
 
-    EdgeView edgeView;
+    private EdgeView edgeView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -122,10 +124,12 @@ public class KnightVisorActivity extends Activity {
             } 
         });
         
+        final Context ctx = this;
         ((CheckBox)findViewById(R.id.medianCheckBox))
         .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
                 edgeView.setMedianFiltering(checked);
+                if (checked) Toast.makeText(ctx, "Median Filtering", Toast.LENGTH_SHORT).show();
             }
         });
         
@@ -134,6 +138,15 @@ public class KnightVisorActivity extends Activity {
         .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
                 edgeView.automaticThresholding(checked);
+                if (checked) Toast.makeText(ctx, "Automatic Thresholding", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        ((CheckBox)findViewById(R.id.logarithmicCheckBox))
+        .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
+                edgeView.automaticThresholding(checked);
+                if (checked) Toast.makeText(ctx, "Log Transform", Toast.LENGTH_SHORT).show();
             }
         });
         
@@ -142,6 +155,7 @@ public class KnightVisorActivity extends Activity {
         .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
                 edgeView.grayscaleOnly(checked);
+                if (checked) Toast.makeText(ctx, "Grayscale", Toast.LENGTH_SHORT).show();
             }
         });
         
