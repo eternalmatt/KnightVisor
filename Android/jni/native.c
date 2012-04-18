@@ -150,20 +150,48 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     }
 
     
-	// log intensity transform
+  /* log intensity transform */
     if (logEnabled)
     {
         for(f = pointer_start; f != pointer_stop; ++f) {
             n22 = logmap[n22];
         }
     }
-    
-    if (automaticT)
+	
+	int i;
+	
+  /* sobel edge detection */
+    int gx, gy, background;
+	pixel gm [];
+	i = 0;
+    for(f = pointer_start; f != pointer_stop; ++f)
+    {
+		
+        gx = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
+        gy = n31 + (n32 << 1) + n33 - (n11 + (n12 << 1) + n13);
+        
+        gm[i] = gx + gy;
+        
+        if (grayscale)
+        {
+            const int a = f[0];
+            background = (a << 0) | (a << 8) | (a << 16) | 0xFF000000;
+        }
+        else
+        {
+            background = TRANSPARENT;
+        }
+		++i;
+    }
+	int gm_len = i;
+	
+  /* threshold */
+	if (automaticT)
     {
 		// calculate histogram
 		int histogram [256];
-		for(f = pointer_start; f != pointer_stop; ++f)
-			++histogram[n22];
+		for(i = 0; i < gm_len; ++i)
+			++histogram[gm[i]];
 		
 		// calculate cumulative sum and weighted cumulative sum
 		int cumSum [256];
@@ -171,7 +199,6 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
 		int totalWeightCumSum = 0;
 		cumSum[0] = histogram[0];
 		weightCumSum[0] = histogram[0];
-		int i;
 		for (i = 1; i < 256; ++i) {
 			cumSum[i] = cumSum[i-1] + histogram[i];
 			weightCumSum[i] = weightCumSum[i-1] + i * histogram[i];
@@ -186,50 +213,25 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
 		for (i = 0; i < 256; ++i) {
 			w0 = cumSum[i];		if (w0 == 0) continue;
 			w1 = nPixels - w0;	if (w1 == 0) continue;
-			
-			u0 = weightCumSum[i] / w0;
-			u1 = (totalWeightCumSum - weightCumSum[i]) / w1;
-			
-			variance = w0 * w1 * (int)pow(u0-u1, 2);
+			variance = w0*w1 * (int)pow((weightCumSum[i]/w0)-(totalWeightCumSum-weightCumSum[i])/w1, 2);
 			if (variance > maxVariance) {
 				maxVariance = variance;
 				maxIndex = i;
 			}
 		}
-
 		threshold = maxIndex; // maxIndex is the threshold value
     }
-	
-    
-    int gx, gy, gm, background;
-    for(f = pointer_start; f != pointer_stop; ++f)
-    {
-        gx = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
-        gy = n31 + (n32 << 1) + n33 - (n11 + (n12 << 1) + n13);
-        
-        gm = gx + gy;
-        
-        if (grayscale)
-        {
-            const int a = f[0];
-            background = (a << 0) | (a << 8) | (a << 16) | 0xFF000000;
-        }
-        else
-        {
-            background = TRANSPARENT;
-        }
-        
-		// this can be taken outside the for loop, but first make sure the code below is correct
-		// I convert to type int because I'm guessing shifting in uint8 well shift bits outside range
-		if (color == GREEN)
-			g[f - pointer_start] = gm > threshold ? (((int)gm) << 8) & color | TRANSPARENT : background;
-		else if (color == BLUE)
-			g[f - pointer_start] = gm > threshold ? (((int)gm) << 16) & color | TRANSPARENT : background;
-		else if (color == RED)
-			g[f - pointer_start] = gm > threshold ? ((int)gm) & color | TRANSPARENT : background;
-		else // if you decide to add more colors
-			g[f - pointer_start] = gm > threshold ? color : background;
-    }
+	int shiftNum = 0;
+	if (color == GREEN) shiftNum = 8;
+	if (color == BLUE) shiftNum = 16;
+	// apply threshold
+	// I convert to type int because I'm guessing shifting in uint8 will shift bits outside range
+	i = 0;
+	for(f = pointer_start; f != pointer_stop; ++f)
+		g[f - pointer_start] = gm[i] > threshold ? ( ((int)gm[i] << shiftNum) & color | TRANSPARENT ) : background;
+		++i;
+	}
+
 }
 
 pixel median(pixel a[])
@@ -260,7 +262,7 @@ pixel median(pixel a[])
 #define m32 (f[p+w-1] * k[8])
 #define m33 (f[p+w-1] * k[9])
 
-#define M_SUM (m11 + m12 + m13 + m21 + m22 + m23 + m31 + m32 + m33)
+#define M_SUM ( (((m11+m12)+(m13+m21)) + ((m22+m23)+(m31+m32))) + m33 )
 #define CONVOLUTION (M_SUM / 9)
 
 /* I have no idea if this works.
@@ -275,4 +277,10 @@ void imfilter(int *f, int *k, int start, int stop, int w)
     
 	for(p=start; p<stop; ++p)
 		f[p] = g[p];
+}
+
+void mean(int *f, int start, int stop, int w)
+{
+	int *k = {0.03125, 0.09375, 0.03125, 0.09375, 0.5, 0.09375, 0.03125, 0.09375, 0.03125};
+	imfilter(*f, *k, start, stop, w)
 }
