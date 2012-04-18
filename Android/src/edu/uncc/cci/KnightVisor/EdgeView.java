@@ -55,7 +55,10 @@ public class EdgeView extends View implements Camera.PreviewCallback
 		else try
 		{
 		    if (canvasRect == null)
+		    {
 		        canvasRect = canvas.getClipBounds();
+		        //cameraRect = new Rect(0,0+canvasRect.top,width, height-canvasRect.top);
+		    }
             
             /* do some processing in seaworld */
             nativeProcessing(cameraPreview, width, height, intBuffer);
