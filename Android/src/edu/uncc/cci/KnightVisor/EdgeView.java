@@ -10,12 +10,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.hardware.Camera;
-import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.util.Log;
 import android.view.View;
 
-public class EdgeView extends View implements PreviewCallback
+public class EdgeView extends View implements Camera.PreviewCallback
 {
     public static final String TAG = EdgeView.class.getSimpleName();
     
@@ -74,6 +73,8 @@ public class EdgeView extends View implements PreviewCallback
 		}
 	}
 	
+	
+	
 	public void onPreviewFrame(byte[] yuv, Camera camera) 
 	{
 		if (cameraPreviewLock.tryLock() && yuv != null)
@@ -96,7 +97,7 @@ public class EdgeView extends View implements PreviewCallback
 				 * are being occupied by the GUI */
 				
 				if (yuv.length < cameraPreview.length)
-				    Log.e(TAG, "The camera frame length is too short!");
+				    Log.e(TAG, "This camera frame is too damn short!");
 				else
 			        System.arraycopy(yuv, 0, cameraPreview, 0, length);			        
 			    
@@ -104,6 +105,10 @@ public class EdgeView extends View implements PreviewCallback
 				cameraPreviewLock.unlock();
 				postInvalidate();
 			}
+		
+		/* the documentation doesn't say anything about this 
+		 * but it is necessary.....  :( */
+		camera.addCallbackBuffer(yuv);
 	}
 
 }

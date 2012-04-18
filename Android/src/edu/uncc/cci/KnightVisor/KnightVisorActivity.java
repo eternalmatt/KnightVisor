@@ -58,8 +58,10 @@ public class KnightVisorActivity extends Activity {
                 camera = null;
             }
             
-            public void surfaceCreated  (SurfaceHolder holder)
-            {   
+            public void surfaceCreated  (SurfaceHolder holder) { }
+            
+            public void surfaceChanged  (SurfaceHolder holder, int format, int width, int height) 
+            {
                 camera = Camera.open();
                 
                 try {
@@ -68,14 +70,6 @@ public class KnightVisorActivity extends Activity {
                     e.printStackTrace();
                 }
 
-                camera.setPreviewCallback(edgeView);
-                camera.startPreview();
-            }
-            
-            public void surfaceChanged  (SurfaceHolder holder, int format, int width, int height) 
-            {
-                if (camera == null) 
-                    return;
 
                 Camera.Parameters parameters = camera.getParameters();
                 Camera.Size       size       = getBestPreviewSize(width, height, parameters);
@@ -83,10 +77,15 @@ public class KnightVisorActivity extends Activity {
                 if (size == null) 
                     return;
                 
+                
                 parameters.setPreviewSize(size.width, size.height);
                 parameters.setPreviewFormat(ImageFormat.NV21);
                 camera.setParameters(parameters);
+                
+                camera.addCallbackBuffer(new byte[width * height * 4]);
+                camera.setPreviewCallbackWithBuffer(edgeView);                
                 camera.startPreview();
+                
             }
             
             /* helper function to set up the display */
