@@ -48,6 +48,12 @@ int color          = GREEN;
 
 /* REALLY REALLY UGLY FUNCTION NAMES TO GET USER INPUT FROM THE JAVA GUI */
 
+JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setMedianFiltering
+(JNIEnv *env, jobject obj, jboolean on)
+{
+    medianEnabled = on;
+}
+
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManually
     (JNIEnv *env, jobject thiz, jint thresh)
 {
