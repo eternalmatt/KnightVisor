@@ -1,18 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/mainRelativeLayout"
+<RelativeLayout android:id="@+id/mainRelativeLayout"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <CheckBox
+        android:id="@+id/medianCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true" 
+        android:checked="false" 
+        android:text="" />
+
+	<CheckBox
+        android:id="@+id/automaticCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"        
+        android:layout_toRightOf="@id/medianCheckBox"
+        android:checked="false" 
+        android:text="" />
+	
+	<CheckBox
+        android:id="@+id/logarithmicCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/automaticCheckBox"
+        android:checked="false" 
+        android:text="" />   
+    
+	<CheckBox
+        android:id="@+id/grayscaleCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/logarithmicCheckBox"
+        android:checked="false" 
+        android:text="" />
+	
+
+    
     <SeekBar
         android:id="@+id/seekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/grayscaleCheckBox" />
     
     <FrameLayout
         android:id="@+id/mainFrameLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/seekBar" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/medianCheckBox"
+        android:animationCache="true"
+        android:persistentDrawingCache="all" >
+
+        <SurfaceView
+            android:id="@+id/surfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom" />
+
+        <edu.uncc.cci.KnightVisor.EdgeView
+            android:id="@+id/edgeView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="top" />
+        
+	</FrameLayout>
 
 </RelativeLayout>
