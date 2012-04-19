@@ -16,7 +16,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -28,6 +27,7 @@ public class KnightVisorActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        edgeView = (EdgeView)this.findViewById(R.id.edgeView);
         
         
         /* set up window so we get full screen */
@@ -37,7 +37,7 @@ public class KnightVisorActivity extends Activity {
         
         
         /* set up a surfaceView where the camera display will be put */
-        SurfaceView   surfaceView   = new SurfaceView(this);
+        SurfaceView   surfaceView   = (SurfaceView)findViewById(R.id.surfaceView);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         surfaceHolder.addCallback(new SurfaceHolder.Callback() 
@@ -106,13 +106,6 @@ public class KnightVisorActivity extends Activity {
         });
         
         
-        FrameLayout frameLayout = (FrameLayout)findViewById(R.id.mainFrameLayout);
-        frameLayout.addView(surfaceView);
-        
-        edgeView = new EdgeView(this);
-        frameLayout.addView(edgeView);
-        
-        
         SeekBar seekbar = (SeekBar)findViewById(R.id.seekBar);
         seekbar.setMax(150); 
         seekbar.setProgress(75);
@@ -145,7 +138,7 @@ public class KnightVisorActivity extends Activity {
         ((CheckBox)findViewById(R.id.logarithmicCheckBox))
         .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
-                edgeView.automaticThresholding(checked);
+                edgeView.logarithmicTransform(checked);
                 if (checked) Toast.makeText(ctx, "Log Transform", Toast.LENGTH_SHORT).show();
             }
         });

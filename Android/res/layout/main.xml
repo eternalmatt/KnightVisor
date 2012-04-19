@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/mainRelativeLayout"
+<RelativeLayout android:id="@+id/mainRelativeLayout"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <CheckBox
         android:id="@+id/medianCheckBox"
@@ -55,10 +54,19 @@
         android:layout_below="@+id/medianCheckBox"
         android:animationCache="true"
         android:persistentDrawingCache="all" >
-        
-       <!--  TODO: add surfaceView and edgeview here in xml  -->
+
+        <SurfaceView
+            android:id="@+id/surfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom" />
+
+        <edu.uncc.cci.KnightVisor.EdgeView
+            android:id="@+id/edgeView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="top" />
         
 	</FrameLayout>
-
 
 </RelativeLayout>

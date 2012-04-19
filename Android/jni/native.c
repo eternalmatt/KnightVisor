@@ -160,7 +160,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
 	
   /* sobel edge detection */
     int gx, gy, background;
-	int gm;// [nPixels];
+	int gm;
     for(f = pointer_start, i = start; f != pointer_stop; ++f, ++i)
     {
 		

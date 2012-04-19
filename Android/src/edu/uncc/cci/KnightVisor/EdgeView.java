@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
@@ -41,9 +42,9 @@ public class EdgeView extends View implements Camera.PreviewCallback
     public native void automaticThresholding(boolean automatic);
     public native void logarithmicTransform(boolean on);
     
-	public EdgeView(Context context)
+	public EdgeView(Context context, AttributeSet set)
 	{
-		super(context);	
+		super(context, set);	
 	}
 	
 	@Override
