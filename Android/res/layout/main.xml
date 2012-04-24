@@ -35,14 +35,21 @@
         android:checked="false" 
         android:text="" />
 	
-
+   	<CheckBox
+        android:id="@+id/edgeIntensityCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:checked="false" 
+        android:text="" />
     
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@id/edgeIntensityCheckBox"
         android:layout_toRightOf="@id/grayscaleCheckBox" />
+
     
     <FrameLayout
         android:id="@+id/mainFrameLayout"

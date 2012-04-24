@@ -166,6 +166,14 @@ public class KnightVisorActivity extends Activity {
             }
         });
         
+        ((CheckBox)findViewById(R.id.edgeIntensityCheckBox))
+        .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
+                edgeView.setSoftEdges(checked);
+                if (checked) Toast.makeText(ctx, "Soft Edges", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
     }
     
     

@@ -43,6 +43,7 @@ bool logEnabled    = false;
 bool medianEnabled = false;
 bool grayscale     = false;
 bool automaticT    = false;
+bool softEdges     = false;
 int threshold      = 100;
 int color          = GREEN;
 
@@ -77,6 +78,12 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_logarithmicTransfo
 (JNIEnv *env, jobject obj, jboolean on)
 {
     logEnabled = on;
+}
+
+JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setSoftEdges
+(JNIEnv *env, jobject obj, jboolean on)
+{
+    softEdges = on;
 }
 
 JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
@@ -162,6 +169,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
   /* sobel edge detection */
     int gx, gy, background;
 	int gm;
+    int edgeColor;
     for(f = pointer_start, i = start; f != pointer_stop; ++f, ++i)
     {
         gx = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
@@ -179,7 +187,9 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
             background = TRANSPARENT;
         }
         
-        g[i] = gm > threshold ? (gm | (gm<<8) | (gm<<16)) & color : background;
+        edgeColor = softEdges ? (gm | (gm<<8) | (gm<<16)) & color : color;
+        
+        g[i] = gm > threshold ? edgeColor : background;
     }
 	
     /* threshold */
