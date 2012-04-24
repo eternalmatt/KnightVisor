@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
@@ -21,7 +22,32 @@ import android.widget.Toast;
 
 public class KnightVisorActivity extends Activity {
 
-    private EdgeView edgeView;
+    public  static final String TAG = "KnightVisorActivity";
+    
+    private Camera   camera   = null;
+    private EdgeView edgeView = null;
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        
+        /* camera deconstruction happens here in Activity Lifecycle
+         * but is created within a surface holder lifecycle */
+        if (camera == null) return;
+        
+        try { 
+            camera.setPreviewDisplay(null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        /* this is the sequence given on android.com */
+        camera.stopPreview();
+        camera.setPreviewCallback(null);
+        camera.release();
+        camera = null;
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,27 +67,9 @@ public class KnightVisorActivity extends Activity {
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         surfaceHolder.addCallback(new SurfaceHolder.Callback() 
-        {
-            private Camera camera = null;
-            
-            public void surfaceDestroyed(SurfaceHolder holder) 
-            {
-                if (camera == null) return;
-                
-                try { 
-                    camera.setPreviewDisplay(null);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                
-                camera.stopPreview();
-                camera.setPreviewCallback(null);
-                camera.release();
-                camera = null;
-            }
-            
-            public void surfaceCreated  (SurfaceHolder holder) { }
-            
+        {   
+            public void surfaceDestroyed(SurfaceHolder holder) { } /* doesn't matter */
+            public void surfaceCreated  (SurfaceHolder holder) { } /* doesn't matter */
             public void surfaceChanged  (SurfaceHolder holder, int format, int width, int height) 
             {
                 camera = Camera.open();
@@ -76,15 +84,19 @@ public class KnightVisorActivity extends Activity {
                 Camera.Parameters parameters = camera.getParameters();
                 Camera.Size       size       = getBestPreviewSize(width, height, parameters);
 
-                if (size == null) 
+                /* if we can't get a proper size, don't display */
+                if (size == null) {
+                    Log.e(TAG, "Could not get a valid camera size");
                     return;
+                }
                 
                 
                 parameters.setPreviewSize(size.width, size.height);
                 parameters.setPreviewFormat(ImageFormat.NV21);
-                camera.setParameters(parameters);
                 
-                camera.addCallbackBuffer(new byte[width * height * 4]);
+                /* set up the camera and start preview */
+                camera.setParameters(parameters);
+                camera.addCallbackBuffer(new byte[size.width * size.height * 4]);
                 camera.setPreviewCallbackWithBuffer(edgeView);                
                 camera.startPreview();
                 
@@ -103,7 +115,7 @@ public class KnightVisorActivity extends Activity {
                 
                 return result;
             }
-        });
+        }); //end SurfaceHolder.Callback
         
         
         
