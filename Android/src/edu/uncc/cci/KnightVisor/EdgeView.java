@@ -8,6 +8,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
@@ -29,6 +31,11 @@ public class EdgeView extends View implements Camera.PreviewCallback
 	private byte[]      cameraPreview     = null;
 	private int         width             = 0;
 	private int         height            = 0;
+	private long        time              = System.currentTimeMillis();
+    private int         framesPerSecond   = 0;
+    private int         frames            = 0;
+    
+    private Paint paint = null;
 	
 	static 
 	{
@@ -45,7 +52,9 @@ public class EdgeView extends View implements Camera.PreviewCallback
     
 	public EdgeView(Context context, AttributeSet set)
 	{
-		super(context, set);	
+		super(context, set);
+		paint = new Paint();
+		paint.setColor(Color.GREEN);
 	}
 	
 	@Override
@@ -58,21 +67,24 @@ public class EdgeView extends View implements Camera.PreviewCallback
 		else try
 		{
 		    if (canvasRect == null)
-		    {
 		        canvasRect = canvas.getClipBounds();
-		        //cameraRect = new Rect(0,0+canvasRect.top,width, height-canvasRect.top);
+
+            /* draw the canvas onto the screen */
+            canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);
+            canvas.drawText(String.valueOf(framesPerSecond), 20, 20, paint);
+           
+            long now = System.currentTimeMillis();
+		    if (System.currentTimeMillis() - time > 1000)
+		    {
+		        framesPerSecond = frames;
+		        frames = 0;
+		        time = now;
 		    }
+		    else
+	        {
+		        frames++;
+	        }
             
-            /* do some processing in seaworld */
-            nativeProcessing(cameraPreview, width, height, intBuffer);
-            
-            
-		    /* copy the pixels from intBuffer to bitmap */
-		    bitmap.copyPixelsFromBuffer(intBuffer);
-		    
-		    
-		    /* draw the canvas onto the screen */
-		    canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);
 		    
 		} finally {
 			cameraPreviewLock.unlock();
@@ -105,8 +117,13 @@ public class EdgeView extends View implements Camera.PreviewCallback
 				if (yuv.length < cameraPreview.length)
 				    Log.e(TAG, "This camera frame is too damn short!");
 				else
-			        System.arraycopy(yuv, 0, cameraPreview, 0, length);			        
-			    
+				{    
+    				/* do some processing in seaworld */
+    	            nativeProcessing(yuv, width, height, intBuffer);
+    	            
+    	            /* copy the pixels from intBuffer to bitmap */
+    	            bitmap.copyPixelsFromBuffer(intBuffer);      
+				}
 			} finally {
 				cameraPreviewLock.unlock();
 				postInvalidate();
