@@ -153,7 +153,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
     {
         for(f = pointer_start; f != pointer_stop; ++f)
         {
-          const pixel pixels[] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
+          pixel pixels[9] = { n11, n12, n13, n21, n22, n23, n31, n32, n33 };
           n22 = fastAndInaccurateMedian(pixels);
         }
     }
@@ -259,7 +259,7 @@ pixel fastAndInaccurateMedian(const pixel f[9])
     for(i = 0; i < 9; i++)      //for size of f
         hist[ f[i] >> 5]++;     // x >> 5 is equivalent to x / pow(2,5).
     
-    for(i = 0; hist[i] > 4; i++)    //this WILL return because hist[i] WILL be > 4 at some point
+    for(i = 0; hist[i] < 5; i++)    //this WILL return because hist[i] WILL be > 4 at some point
         hist[i+1] += hist[i];       //create cumsum in place
     
     return i << 5;      //scale back up to [0..255] range (actually [0..224])
