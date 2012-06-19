@@ -1,4 +1,4 @@
-package edu.uncc.cci.KnightVisor;
+package com.visor.knight;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;

@@ -1,4 +1,4 @@
-#include <edu_uncc_cci_KnightVisor_EdgeView.h>
+#include <com_visor_knight_EdgeView.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
@@ -50,44 +50,44 @@ int color          = GREEN;
 
 /* REALLY REALLY UGLY FUNCTION NAMES TO GET USER INPUT FROM THE JAVA GUI */
 
-JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setMedianFiltering
+JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_setMedianFiltering
 (JNIEnv *env, jobject obj, jboolean on)
 {
     medianEnabled = on;
 }
 
-JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setThresholdManually
+JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_setThresholdManually
     (JNIEnv *env, jobject thiz, jint thresh)
 {
 	// for automatic thresholding, let thresh be -1
     threshold = thresh;
 }
 
-JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_grayscaleOnly
+JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_grayscaleOnly
 (JNIEnv *env, jobject obj, jboolean gray)
 {
     grayscale = gray;
 }
 
-JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_automaticThresholding
+JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_automaticThresholding
 (JNIEnv *env, jobject obj, jboolean autoT)
 {
     automaticT = autoT;
 }
 
-JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_logarithmicTransform
+JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_logarithmicTransform
 (JNIEnv *env, jobject obj, jboolean on)
 {
     logEnabled = on;
 }
 
-JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setSoftEdges
+JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_setSoftEdges
 (JNIEnv *env, jobject obj, jboolean on)
 {
     softEdges = on;
 }
 
-JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
+JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_setColorSelected
     (JNIEnv *env, jobject thiz, jint userColor)
 {
     /* For some reason the colors get mixed up and we
@@ -106,7 +106,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_setColorSelected
 
 /* the main image processing function that gets called by java */
 
-JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
+JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_nativeProcessing
     (JNIEnv *env, jobject thiz, //these variables are in every JNI call
      
      /* the input byte[] camera frame, width, height, and output int[] buffer */
@@ -192,64 +192,7 @@ JNIEXPORT void JNICALL Java_edu_uncc_cci_KnightVisor_EdgeView_nativeProcessing
         
         g[i] = gm > threshold ? edgeColor : background;
     }
-	
-    /* threshold */
-    /*
-	if (0 && automaticT)
-    {
-		// calculate histogram
-		int histogram [256];
-		for(i = start; i < stop; ++i)
-        {
-			if (gm[i] < 0)
-                histogram[0]++;
-            if (gm[i] > 255)
-                histogram[255]++;
-            else
-                histogram[gm[i]]++;
-            
-            //histogram[ gm[i] < 0 ? 0 : gm[i] > 255 ? 255 : gm[i]]++; 
-        }
-		
-		// calculate cumulative sum and weighted cumulative sum
-		int cumSum [256];        
-		int weightCumSum [256];
-        weightCumSum[0] = cumSum[0] = histogram[0];
-		int totalWeightCumSum   = 0;
-		for (i = 1; i < 256; ++i) {
-			cumSum[i] = cumSum[i-1] + histogram[i];
-			weightCumSum[i] = weightCumSum[i-1] + i * histogram[i];
-			totalWeightCumSum += weightCumSum[i];
-		}
-		
-		// find maximum Otsu variance
-		int maxVariance = 0; // I am assuming I get no negative variances...
-		int maxIndex = 0;
-		int w0, w1, variance;
-		float u0, u1;
-		for (i = 0; i < 256; ++i) {
-			w0 = cumSum[i];		if (w0 == 0) continue;
-			w1 = nPixels - w0;	if (w1 == 0) continue;
-			variance = w0*w1 * (int)pow((weightCumSum[i]/w0)-(totalWeightCumSum-weightCumSum[i])/w1, 2);
-			if (variance > maxVariance) {
-				maxVariance = variance;
-				maxIndex = i;
-			}
-		}
-		threshold = maxIndex; // maxIndex is the threshold value
-         
-    }
-    /*
-	int shiftNum = 0;
-	if (color == GREEN) shiftNum = 8;
-	if (color == BLUE) shiftNum = 16;
-	// apply threshold
-	// I convert to type int because I'm guessing shifting in uint8 will shift bits outside range
-	for(f = pointer_start, i=start; f != pointer_stop; ++f, ++i) {
-		g[i] = gm[i] > threshold ? color : n22;//( ((int)gm[i] << shiftNum) & color | TRANSPARENT ) : background;
-	}
-         */
-
+    
 }
 
 pixel fastAndInaccurateMedian(const pixel f[9])
