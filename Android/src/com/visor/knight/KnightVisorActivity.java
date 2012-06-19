@@ -2,8 +2,6 @@ package com.visor.knight;
 
 import java.io.IOException;
 
-import edu.uncc.cci.KnightVisor.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;

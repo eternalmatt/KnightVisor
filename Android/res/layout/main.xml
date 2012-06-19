@@ -68,7 +68,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="bottom" />
 
-        <edu.uncc.cci.KnightVisor.EdgeView
+        <com.visor.knight.EdgeView
             android:id="@+id/edgeView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

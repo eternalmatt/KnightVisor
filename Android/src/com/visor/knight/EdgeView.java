@@ -12,14 +12,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
 public class EdgeView extends View implements Camera.PreviewCallback {
-
-    public EdgeView(Context context) {
-        super(context);
-    }
 
     public static final String TAG = EdgeView.class.getSimpleName();
 
@@ -37,10 +34,14 @@ public class EdgeView extends View implements Camera.PreviewCallback {
     private int framesPerSecond = 0;
     private int frames = 0;
 
-    private static Paint paint = new Paint();
+    private Paint paint = new Paint();
 
     static {
         System.loadLibrary("native");
+    }
+
+    public EdgeView(Context context, AttributeSet attrs) {
+        super(context, attrs);
         paint.setColor(Color.GREEN);
     }
 
