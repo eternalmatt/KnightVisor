@@ -259,10 +259,11 @@ pixel fastAndInaccurateMedian(const pixel f[9])
     for(i = 0; i < 9; i++)      //for size of f
         hist[ f[i] >> 5]++;     // x >> 5 is equivalent to x / pow(2,5).
     
-    for(i = 0; hist[i] < 5; i++)    //this WILL return because hist[i] WILL be > 4 at some point
-        hist[i+1] += hist[i];       //create cumsum in place
+    int sum = hist[0];
+    for(i = 1; sum < 5; i++)    //this WILL return because hist[i] WILL be > 4 at some point
+        sum += hist[i];       //create cumsum in place
     
-    return i << 5;      //scale back up to [0..255] range (actually [0..224])
+    return ((i-1) << 5) + 16;      //scale back up to [0..255] range (actually [0..224])
 }
 
 pixel median(pixel a[])
