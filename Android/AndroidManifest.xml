@@ -22,6 +22,10 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                
+                <!-- For the Ethereal Dialpad if it is installed -->
+				<action android:name="as.adamsmith.etherealdialpad.PERFORM" />
+			    
             </intent-filter>
         </activity>
         

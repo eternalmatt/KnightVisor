@@ -3,24 +3,27 @@ package com.visor.knight;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Toast;
+import as.adamsmith.etherealdialpad.dsp.ISynthService;
 
 public class KnightVisorActivity extends Activity {
 
@@ -28,16 +31,33 @@ public class KnightVisorActivity extends Activity {
 
     private Camera camera = null;
     private EdgeView edgeView = null;
+    private ISynthService synthService = null;
+
+    private ServiceConnection synthServiceConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            synthService = ISynthService.Stub.asInterface(service);
+            if (edgeView != null) edgeView.synthService = synthService;
+        }
+
+        public void onServiceDisconnected(ComponentName name) {
+            synthService = null;
+            if (edgeView != null) edgeView.synthService = null;
+        }
+    };
 
     @Override
     protected void onResume() {
         super.onResume();
         camera = Camera.open();
+        Intent synthServiceIntent = new Intent(ISynthService.class.getName());
+        bindService(synthServiceIntent, synthServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+
+        unbindService(synthServiceConnection);
 
         if (camera == null) return;
 
@@ -59,6 +79,9 @@ public class KnightVisorActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         edgeView = (EdgeView)this.findViewById(R.id.edgeView);
+        if (synthService != null) {
+            edgeView.synthService = synthService;
+        }
 
         /* set up window so we get full screen */
         Window window = this.getWindow();
@@ -80,23 +103,6 @@ public class KnightVisorActivity extends Activity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                edgeView.setOnTouchListener(new View.OnTouchListener() {
-                    public boolean onTouch(View v, MotionEvent event) {
-
-                        float x = event.getX();
-                        float y = event.getY();
-
-                        int r = (int)(255 * x / (float)width);
-                        int g = (int)(255 * y / (float)height);
-                        int b = 0;
-
-                        int color = Color.rgb(r, g, b);
-                        edgeView.setColorSelected(color);
-
-                        return true;
-                    }
-                });
 
                 Camera.Parameters parameters = camera.getParameters();
                 Camera.Size size = getBestPreviewSize(width, height, parameters);

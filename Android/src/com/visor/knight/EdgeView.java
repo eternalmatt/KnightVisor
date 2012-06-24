@@ -14,9 +14,10 @@ import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
-public class EdgeView extends View implements Camera.PreviewCallback {
+public class EdgeView extends DialpadView implements Camera.PreviewCallback {
 
     private static final String TAG = EdgeView.class.getSimpleName();
     private final Paint frameRateText = new Paint();
@@ -58,6 +59,22 @@ public class EdgeView extends View implements Camera.PreviewCallback {
     public native void logarithmicTransform(boolean on);
 
     public native void setSoftEdges(boolean soft);
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        final float x = event.getX();
+        final float y = event.getY();
+
+        int r = (int)(255 * x / (float)getWidth());
+        int g = (int)(255 * y / (float)getHeight());
+        int b = 0;
+
+        int color = Color.rgb(r, g, b);
+        this.setColorSelected(color);
+
+        /* Must call super for the DialpadView to intercept touch */
+        return super.onTouch(view, event);
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
