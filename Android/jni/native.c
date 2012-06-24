@@ -123,12 +123,11 @@ JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_nativeProcessing
     pixel *pointer_stop  = image + stop;    //used in the for loops
     pixel *f;
 	int i;
-
     
     /* create a local copy so it is faster */
     for (i = start; i < stop; ++i)
     {
-        image[i] = fbytearray[i] & 0x000000FF; /* only copy 0..255 */
+        image[i] = fbytearray[i] & 0xFF;
     }
     (*env)->ReleaseByteArrayElements(env, frame, fbytearray, JNI_ABORT);
     
@@ -142,12 +141,12 @@ JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_nativeProcessing
 #define n31 (f[  w-1])
 #define n32 (f[  w  ])
 #define n33 (f[  w+1])
-    /* 
-     these definitions are so we can refer to a window like so:
+/* 
+these definitions are so we can refer to a window like so:
          n11 n12 n13
          n21 n22 n23
          n31 n32 n33
-    */
+*/
       
     if (medianEnabled)
     {
@@ -159,7 +158,7 @@ JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_nativeProcessing
     }
 
     
-  /* log intensity transform */
+    /* log intensity transform */
     if (logEnabled)
     {
         for(f = pointer_start; f != pointer_stop; ++f) {
@@ -167,20 +166,22 @@ JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_nativeProcessing
         }
     }
 	
-  /* sobel edge detection */
-    int gx, gy, background;
-	int gm;
-    int edgeColor;
+    /* sobel edge detection */
+    int gx, gy, gm, background, edgeColor;
     for(f = pointer_start, i = start; f != pointer_stop; ++f, ++i)
     {
-        gx = n13 + (n23 << 1) + n33 - (n11 + (n21 << 1) + n31);
-        gy = n31 + (n32 << 1) + n33 - (n11 + (n12 << 1) + n13);
+        pixel f11 = n11, f12 = n12, f13 = n13;
+        pixel f21 = n21, f22 = n22, f23 = n23;
+        pixel f31 = n31, f32 = n32, f33 = n33;
+        
+        gx = f13 + (f23 << 1) + f33 - (f11 + (f21 << 1) + f31);
+        gy = f31 + (f32 << 1) + f33 - (f11 + (f12 << 1) + f13);
         
         gm = (gx + gy) /2;
 
         if (grayscale)
         {
-            const int a = n22;
+            int a = f22;
             background = (a << 0) | (a << 8) | (a << 16) | 0xFF000000;
         }
         else
@@ -197,36 +198,36 @@ JNIEXPORT void JNICALL Java_com_visor_knight_EdgeView_nativeProcessing
 
 pixel fastAndInaccurateMedian(const pixel f[9])
 {
-    int i, hist[8] = {0,0,0,0,0,0,0,0}; //histogram. each cell represents 32 intensities.
+#define MAXHIST (8)
+    int i, sum;
+
+/* you can either do it the hard way,
+ * or the easy way. Easy way is innaccurate,
+ * but hella fast. */
+#if MAXHIST > 8
+    int hist[MAXHIST];
+    for(i = 0; i < MAXHIST; i++) 
+        hist[i] = 0;
+#else
+    int hist[MAXHIST] = {0,0,0,0,0,0,0,0}; 
+#endif
     
-    for(i = 0; i < 9; i++)      //for size of f
-        hist[ f[i] >> 5]++;     // x >> 5 is equivalent to x / pow(2,5).
     
-    int sum = hist[0];
-    for(i = 1; sum < 5; i++)    //this WILL return because hist[i] WILL be > 4 at some point
-        sum += hist[i];       //create cumsum in place
+    for(i = 0; i < 9; i++)
+    {
+        int p = f[i] / 32;
+        hist[ p < MAXHIST ? p : MAXHIST - 1]++;
+    }
     
-    return ((i-1) << 5) + 16;      //scale back up to [0..255] range (actually [0..224])
+    sum = hist[0];
+    for(i = 1; sum < 5; i++)
+        sum += hist[i];
+    
+    return f[5];
+#undef MAXHIST
 }
 
-pixel median(pixel a[])
-{
-	int i, k;
-	pixel mins[6] = {a[0], 256, 256, 256, 256, 256};
-	for (i = 1; i <= 4; ++i) {
-		for (k = i - 1; a[i] < mins[k] && k >= 0; --k)
-			mins[k+1] = mins[k];
-		mins[k+1] = a[i];
-	}
-	for (i = 5; i < 9; ++i) {
-		for(k = 4; a[i] < mins[k] && k >= 0; --k)
-			mins[k+1] = mins[k];
-		mins[k+1] = a[i];
-	}
-	return mins[4];
-}
-
-
+/*
 #define m11 (f[p-w-1] * k[1])
 #define m12 (f[p-w  ] * k[2])
 #define m13 (f[p-w+1] * k[3])
@@ -240,9 +241,6 @@ pixel median(pixel a[])
 #define M_SUM ( (((m11+m12)+(m13+m21)) + ((m22+m23)+(m31+m32))) + m33 )
 #define CONVOLUTION (M_SUM / 9)
 
-/* I have no idea if this works.
- * In theory, it is a generic imfilter implementation
- * for a 3x3 kernel (flattened in a 1x9 array) */
 void imfilter(int *f, float *k, int start, int stop, int w)
 {
 	int g[nPixels], p;
@@ -259,4 +257,5 @@ void mean(int *f, int start, int stop, int w)
 	float k[] = {0.03125, 0.09375, 0.03125, 0.09375, 0.5, 0.09375, 0.03125, 0.09375, 0.03125};
 	imfilter(f, k, start, stop, w);
 }
+*/
 

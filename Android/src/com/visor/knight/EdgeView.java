@@ -18,8 +18,8 @@ import android.view.View;
 
 public class EdgeView extends View implements Camera.PreviewCallback {
 
-    public static final String TAG = EdgeView.class.getSimpleName();
-
+    private static final String TAG = EdgeView.class.getSimpleName();
+    private static final Paint paint = new Paint();
     private final Lock cameraPreviewLock = new ReentrantLock();
 
     private Bitmap bitmap = null;
@@ -34,15 +34,13 @@ public class EdgeView extends View implements Camera.PreviewCallback {
     private int framesPerSecond = 0;
     private int frames = 0;
 
-    private Paint paint = new Paint();
-
     static {
         System.loadLibrary("native");
+        paint.setColor(Color.GREEN);
     }
 
     public EdgeView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        paint.setColor(Color.GREEN);
     }
 
     public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
@@ -64,7 +62,8 @@ public class EdgeView extends View implements Camera.PreviewCallback {
     @Override
     protected void onDraw(Canvas canvas) {
 
-        if (cameraPreview == null || cameraPreviewLock.tryLock() == false) return;
+        if (cameraPreview == null || cameraPreviewLock.tryLock() == false)
+            return;
         else try {
             if (canvasRect == null) canvasRect = canvas.getClipBounds();
 
@@ -105,7 +104,8 @@ public class EdgeView extends View implements Camera.PreviewCallback {
                 /* TODO: lop off the first N rows based on how many pixels are
                  * being occupied by the GUI */
 
-                if (yuv.length < cameraPreview.length) Log.e(TAG, "This camera frame is too damn short!");
+                if (yuv.length < cameraPreview.length)
+                    Log.e(TAG, "This camera frame is too damn short!");
                 else {
                     /* do some processing in seaworld */
                     nativeProcessing(yuv, width, height, intBuffer);

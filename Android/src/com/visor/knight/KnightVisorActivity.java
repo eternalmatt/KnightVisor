@@ -22,17 +22,21 @@ import android.widget.Toast;
 
 public class KnightVisorActivity extends Activity {
 
-    public static final String TAG = "KnightVisorActivity";
+    public static final String TAG = KnightVisorActivity.class.getSimpleName();
 
     private Camera camera = null;
     private EdgeView edgeView = null;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        camera = Camera.open();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
 
-        /* camera deconstruction happens here in Activity Lifecycle but is
-         * created within a surface holder lifecycle */
         if (camera == null) return;
 
         try {
@@ -69,8 +73,6 @@ public class KnightVisorActivity extends Activity {
             public void surfaceCreated(SurfaceHolder holder) {} /* doesn't matter */
 
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                camera = Camera.open();
-
                 try {
                     camera.setPreviewDisplay(holder);
                 } catch (IOException e) {
@@ -94,7 +96,6 @@ public class KnightVisorActivity extends Activity {
                 camera.addCallbackBuffer(new byte[size.width * size.height * 4]);
                 camera.setPreviewCallbackWithBuffer(edgeView);
                 camera.startPreview();
-
             }
 
             /* helper function to set up the display */
@@ -103,7 +104,11 @@ public class KnightVisorActivity extends Activity {
 
                 /* trying to get largest possible size */
                 for (Camera.Size size : parameters.getSupportedPreviewSizes())
-                    if (size.width <= width && size.height <= height) if (result == null || size.width * size.height > result.width * result.height) result = size;
+                    if (size.width <= width && size.height <= height) {
+                        if (result == null || size.width * size.height > result.width * result.height) {
+                            result = size;
+                        }
+                    }
 
                 return result;
             }
