@@ -11,8 +11,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CheckBox;
@@ -72,12 +74,29 @@ public class KnightVisorActivity extends Activity {
 
             public void surfaceCreated(SurfaceHolder holder) {} /* doesn't matter */
 
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            public void surfaceChanged(SurfaceHolder holder, int format, final int width, final int height) {
                 try {
                     camera.setPreviewDisplay(holder);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                edgeView.setOnTouchListener(new View.OnTouchListener() {
+                    public boolean onTouch(View v, MotionEvent event) {
+
+                        float x = event.getX();
+                        float y = event.getY();
+
+                        int r = (int)(255 * x / (float)width);
+                        int g = (int)(255 * y / (float)height);
+                        int b = 0;
+
+                        int color = Color.rgb(r, g, b);
+                        edgeView.setColorSelected(color);
+
+                        return true;
+                    }
+                });
 
                 Camera.Parameters parameters = camera.getParameters();
                 Camera.Size size = getBestPreviewSize(width, height, parameters);

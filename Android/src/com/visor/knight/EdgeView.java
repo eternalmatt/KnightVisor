@@ -19,7 +19,7 @@ import android.view.View;
 public class EdgeView extends View implements Camera.PreviewCallback {
 
     private static final String TAG = EdgeView.class.getSimpleName();
-    private static final Paint paint = new Paint();
+    private final Paint frameRateText = new Paint();
     private final Lock cameraPreviewLock = new ReentrantLock();
 
     private Bitmap bitmap = null;
@@ -28,19 +28,19 @@ public class EdgeView extends View implements Camera.PreviewCallback {
 
     private IntBuffer intBuffer = null;
     private byte[] cameraPreview = null;
-    private int width = 0;
-    private int height = 0;
     private long time = System.currentTimeMillis();
     private int framesPerSecond = 0;
     private int frames = 0;
+    private float textSize = 30;
 
     static {
         System.loadLibrary("native");
-        paint.setColor(Color.GREEN);
     }
 
     public EdgeView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        frameRateText.setColor(Color.GREEN);
+        frameRateText.setTextSize(textSize);
     }
 
     public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
@@ -69,7 +69,7 @@ public class EdgeView extends View implements Camera.PreviewCallback {
 
             /* draw the canvas onto the screen */
             canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);
-            canvas.drawText(String.valueOf(framesPerSecond), 20, 20, paint);
+            canvas.drawText(String.valueOf(framesPerSecond), 0, textSize, frameRateText);
 
             long now = System.currentTimeMillis();
             if (System.currentTimeMillis() - time > 1000) {
@@ -90,8 +90,8 @@ public class EdgeView extends View implements Camera.PreviewCallback {
             try {
 
                 Camera.Size size = camera.getParameters().getPreviewSize();
-                width = size.width;
-                height = size.height;
+                int width = size.width;
+                int height = size.height;
                 final int length = width * height;
 
                 if (cameraPreview == null || cameraPreview.length != length) {
@@ -123,5 +123,4 @@ public class EdgeView extends View implements Camera.PreviewCallback {
             camera.addCallbackBuffer(yuv);
         }
     }
-
 }
