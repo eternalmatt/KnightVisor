@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/red" android:title="Red"></item>
-    <item android:id="@+id/green" android:title="Green"></item>
-    <item android:id="@+id/blue" android:title="Blue"></item>
+    <item android:id="@+id/red" android:title="@string/menu_red"></item>
+    <item android:id="@+id/green" android:title="@string/menu_green"></item>
+    <item android:id="@+id/blue" android:title="@string/menu_blue"></item>
+    <item android:id="@+id/launchBrowser" android:titleCondensed="@string/menu_better" android:title="@string/menu_launchBrowser"></item>
     
 
 </menu>

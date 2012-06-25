@@ -75,5 +75,14 @@
             android:layout_gravity="top" />
         
 	</FrameLayout>
-
+	
+    
+   	<Button 
+   	    android:id="@+id/takePictureButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:text="@string/takePicture" />
+   	
 </RelativeLayout>

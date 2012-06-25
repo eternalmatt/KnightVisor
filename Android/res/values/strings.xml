@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, KnightVisorActivity!</string>
     <string name="app_name">KnightVisor</string>
+    <string name="dialpadDescription">KnightVisor: Edge detection that changes color with your finger.</string>
+    <string name="etherealDialpadURL">https://play.google.com/store/apps/details?id=as.adamsmith.etherealdialpad</string>
+    <string name="alertMessage">To add music functionality to this app, you can install Ethereal Dialpad</string>
+    <string name="alertPositiveButton">Take me there!</string>
+    <string name="alertNegativeButton">No thanks</string>
+    <string name="alertTitle">Add music?</string>
+    <string name="menu_launchBrowser">Improve App</string>
+    <string name="menu_blue">Blue</string>
+    <string name="menu_green">Green</string>
+    <string name="menu_red">Red</string>
+    <string name="menu_better">Better</string>
+    <string name="takePicture">Take picture</string>
 
 </resources>
