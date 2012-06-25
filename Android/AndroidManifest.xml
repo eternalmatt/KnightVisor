@@ -17,19 +17,29 @@
         <activity
             android:name=".KnightVisorActivity"
             android:icon="@drawable/ic_launcher"
-            android:label="@string/dialpadDescription" 
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-                
-                <!-- For the Ethereal Dialpad if it is installed -->
-				<action android:name="as.adamsmith.etherealdialpad.PERFORM" />
-			    
             </intent-filter>
         </activity>
+        
+        
+        <!-- For the Ethereal Dialpad (if it is installed on user's device) -->
+        <activity
+            android:name=".KnightVisorActivity"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/dialpadDescription" 
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <intent-filter>
+				<action android:name="as.adamsmith.etherealdialpad.PERFORM" />
+            </intent-filter>
+        </activity>
+        <!-- End Ethereal Diaplad declaration -->
+        
         
     </application>
 
