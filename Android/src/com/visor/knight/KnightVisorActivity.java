@@ -1,13 +1,6 @@
 package com.visor.knight;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,16 +9,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -204,35 +193,7 @@ public class KnightVisorActivity extends Activity {
 
         findViewById(R.id.takePictureButton).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (camera == null) return;
-                camera.takePicture(null, null, new Camera.PictureCallback() {
-                    public void onPictureTaken(byte[] data, Camera camera) {
-
-                        final File path = new File(Environment.getExternalStorageDirectory(), ctx.getPackageName());
-                        if (false == path.exists()) path.mkdir();
-
-                        File file = new File(path, "image.png");
-
-                        OutputStream os = null;
-                        try {
-                            os = new FileOutputStream(file);
-                        } catch (FileNotFoundException e) {
-                            Toast.makeText(ctx, "File not written", Toast.LENGTH_SHORT);
-                            e.printStackTrace();
-                        }
-
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                        Log.d(TAG, "Bitmap decoded");
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
-                        Log.d(TAG, "Bitmap compressed");
-
-                        camera.addCallbackBuffer(data);
-                        Log.d(TAG, "camera::addCallbackBuffer");
-                        camera.startPreview();
-                        Log.d(TAG, "camera::startPreview");
-
-                    }
-                });
+                edgeView.captureNextFrame();
             }
         });
 

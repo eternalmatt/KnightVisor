@@ -17,7 +17,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class EdgeView extends DialpadView implements Camera.PreviewCallback {
+public class EdgeView extends DialpadView implements Camera.PreviewCallback, Camera.PictureCallback {
 
     private static final String TAG = EdgeView.class.getSimpleName();
     private final Paint frameRateText = new Paint();
@@ -33,6 +33,12 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback {
     private int framesPerSecond = 0;
     private int frames = 0;
     private float textSize = 30;
+    private Context appContext = null;
+    private boolean captureNextFrame = false;
+
+    public void captureNextFrame() {
+        this.captureNextFrame = true;
+    }
 
     static {
         System.loadLibrary("native");
@@ -40,6 +46,7 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback {
 
     public EdgeView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.appContext = context;
         frameRateText.setColor(Color.GREEN);
         frameRateText.setTextSize(textSize);
     }
@@ -129,6 +136,11 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback {
 
                     /* copy the pixels from intBuffer to bitmap */
                     bitmap.copyPixelsFromBuffer(intBuffer);
+
+                    if (captureNextFrame) {
+                        captureNextFrame = false;
+                        PictureHandler.savePicture(appContext, bitmap);
+                    }
                 }
             } finally {
                 cameraPreviewLock.unlock();
@@ -140,4 +152,10 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback {
             camera.addCallbackBuffer(yuv);
         }
     }
+
+    public void onPictureTaken(byte[] data, Camera camera) {
+        this.captureNextFrame = true;
+        Log.d(TAG, "Normal length=" + cameraPreview.length + ", got length=" + data.length);
+    }
+
 }
