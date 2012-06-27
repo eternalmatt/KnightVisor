@@ -1,3 +1,6 @@
 [submodule "edgefinder"]
 	path = edgefinder
 	url = git@github.com:bwr/edgefinder.git
+[submodule "Android/libs/android-actionbar"]
+	path = Android/libs/android-actionbar
+	url = git://github.com/johannilsson/android-actionbar.git
