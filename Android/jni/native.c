@@ -16,7 +16,7 @@ bool medianEnabled = false;
 bool grayscale     = false;
 bool automaticT    = false;
 bool softEdges     = false;
-int threshold      = 100;
+int threshold      = 42;
 int color          = GREEN;
 
 /* REALLY REALLY UGLY FUNCTION NAMES TO GET USER INPUT FROM THE JAVA GUI */

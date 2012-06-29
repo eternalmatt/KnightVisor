@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +22,8 @@ public class PictureHandler {
 
     public static void savePicture(final Context context, final Bitmap bitmap) {
         Log.d(TAG, "Getting file path and creating file.");
-        File path = new File(Environment.getExternalStorageDirectory(), context.getPackageName());
+        Toast.makeText(context, "Please wait...", Toast.LENGTH_SHORT).show();
+        File path = new File(Environment.getExternalStorageDirectory(), context.getString(R.string.app_name));
         if (false == path.exists()) path.mkdir();
 
         final File file = new File(path, "image.png");
@@ -36,19 +39,12 @@ public class PictureHandler {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
         Log.d(TAG, "Bitmap compressed (file written)");
 
-        /*
-        camera.addCallbackBuffer(yu);
-        Log.d(TAG, "camera::addCallbackBuffer");
-        camera.startPreview();
-        Log.d(TAG, "camera::startPreview");
-        */
-
-        MediaScannerConnection.scanFile(context, new String[]{ file.getAbsolutePath() }, new String[]{ "image/jpeg" }, new MediaScannerConnection.OnScanCompletedListener() {
+        MediaScannerConnection.scanFile(context, new String[]{ file.getAbsolutePath() }, null, new MediaScannerConnection.OnScanCompletedListener() {
             public void onScanCompleted(String path, Uri uri) {
                 Intent shareIntent = new Intent();
                 shareIntent.setAction(Intent.ACTION_SEND);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-                shareIntent.setType("image/jpeg");
+                shareIntent.setType("image/png");
                 Log.d(TAG, "Intent created. Launching chooser.");
                 context.startActivity(Intent.createChooser(shareIntent, "Share image?"));
             }

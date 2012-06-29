@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
+import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,11 +24,11 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.SeekBar;
-import android.widget.Toast;
 import as.adamsmith.etherealdialpad.dsp.ISynthService;
+
+import com.markupartist.android.widget.ActionBar;
+import com.markupartist.android.widget.ActionBar.Action;
 
 public class KnightVisorActivity extends Activity {
 
@@ -49,16 +50,16 @@ public class KnightVisorActivity extends Activity {
     };
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         camera = Camera.open();
         Intent synthServiceIntent = new Intent(ISynthService.class.getName());
         bindService(synthServiceIntent, synthServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
 
         unbindService(synthServiceConnection);
 
@@ -80,11 +81,63 @@ public class KnightVisorActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.main_with_actionbar);
         edgeView = (EdgeView)this.findViewById(R.id.edgeView);
-        if (synthService != null) {
-            edgeView.synthService = synthService;
-        }
+        edgeView.synthService = synthService;
+
+        final Activity ctx = this;
+        ActionBar actionBar = (ActionBar)findViewById(R.id.actionbar);
+        actionBar.setTitle("KnightVisor");
+
+        actionBar.setHomeAction(new ActionBar.Action() {
+            public void performAction(View view) {
+                edgeView.setColorSelected(Color.GREEN);
+            }
+
+            public int getDrawable() {
+                return R.drawable.ic_launcher;
+            }
+        });
+        actionBar.addAction(new Action() {
+            public void performAction(View view) {
+                edgeView.captureNextFrame();
+            }
+
+            public int getDrawable() {
+                return R.drawable.ic_menu_camera;
+            }
+        });
+        actionBar.addAction(new Action() {
+            public void performAction(View view) {
+                // TODO Auto-generated method stub
+            }
+
+            public int getDrawable() {
+                return R.drawable.ic_menu_share;
+            }
+        });
+        actionBar.addAction(new Action() {
+            public void performAction(View view) {
+                ctx.openOptionsMenu();
+            }
+
+            public int getDrawable() {
+                return R.drawable.ic_menu_moreoverflow_normal_holo_dark;
+            }
+        });
+
+        SeekBar seekBar = (SeekBar)findViewById(R.id.seekBar);
+        seekBar.setMax(150);
+        seekBar.setProgress(75);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                edgeView.setThresholdManually(150 - progress);
+            }
+        });
 
         /* set up window so we get full screen */
         Window window = this.getWindow();
@@ -94,6 +147,7 @@ public class KnightVisorActivity extends Activity {
         /* set up a surfaceView where the camera display will be put */
         SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceView);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
+        surfaceHolder.setFormat(PixelFormat.TRANSPARENT);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         surfaceHolder.addCallback(new SurfaceHolder.Callback() {
             public void surfaceDestroyed(SurfaceHolder holder) {} /* doesn't matter */
@@ -142,61 +196,6 @@ public class KnightVisorActivity extends Activity {
             }
         }); // end SurfaceHolder.Callback
 
-        SeekBar seekbar = (SeekBar)findViewById(R.id.seekBar);
-        seekbar.setMax(150);
-        seekbar.setProgress(75);
-        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                edgeView.setThresholdManually(150 - progress);
-            }
-        });
-
-        final Context ctx = this;
-        ((CheckBox)findViewById(R.id.medianCheckBox)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
-                edgeView.setMedianFiltering(checked);
-                if (checked) Toast.makeText(ctx, "Median Filtering", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        ((CheckBox)findViewById(R.id.automaticCheckBox)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
-                edgeView.automaticThresholding(checked);
-                if (checked) Toast.makeText(ctx, "Automatic Thresholding", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        ((CheckBox)findViewById(R.id.logarithmicCheckBox)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
-                edgeView.logarithmicTransform(checked);
-                if (checked) Toast.makeText(ctx, "Log Transform", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        ((CheckBox)findViewById(R.id.grayscaleCheckBox)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
-                edgeView.grayscaleOnly(checked);
-                if (checked) Toast.makeText(ctx, "Grayscale", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        ((CheckBox)findViewById(R.id.edgeIntensityCheckBox)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean checked) {
-                edgeView.setSoftEdges(checked);
-                if (checked) Toast.makeText(ctx, "Soft Edges", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        findViewById(R.id.takePictureButton).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                edgeView.captureNextFrame();
-            }
-        });
-
     }
 
     /* options menu */
@@ -209,36 +208,32 @@ public class KnightVisorActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.red:
-                edgeView.setColorSelected(Color.RED);
-                return true;
-            case R.id.green:
-                edgeView.setColorSelected(Color.GREEN);
-                return true;
-            case R.id.blue:
-                edgeView.setColorSelected(Color.BLUE);
-                return true;
+        if (item.getItemId() == R.id.red) {
+            edgeView.setColorSelected(Color.RED);
+            return true;
+        } else if (item.getItemId() == R.id.green) {
+            edgeView.setColorSelected(Color.GREEN);
+            return true;
+        } else if (item.getItemId() == R.id.blue) {
+            edgeView.setColorSelected(Color.BLUE);
+            return true;
+        } else if (item.getItemId() == R.id.launchBrowser) {
 
-            case R.id.launchBrowser:
-
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.alertTitle);
-                builder.setMessage(R.string.alertMessage);
-                builder.setPositiveButton(R.string.alertPositiveButton, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Uri url = Uri.parse(getString(R.string.etherealDialpadURL));
-                        Intent intent = new Intent(Intent.ACTION_VIEW, url);
-                        startActivity(intent);
-                    }
-                });
-                builder.setNegativeButton(R.string.alertNegativeButton, null);
-                builder.show();
-
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.alertTitle);
+            builder.setMessage(R.string.alertMessage);
+            builder.setPositiveButton(R.string.alertPositiveButton, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    Uri url = Uri.parse(getString(R.string.etherealDialpadURL));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, url);
+                    startActivity(intent);
+                }
+            });
+            builder.setNegativeButton(R.string.alertNegativeButton, null);
+            builder.show();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 }
