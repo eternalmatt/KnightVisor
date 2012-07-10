@@ -11,9 +11,10 @@
     
     <SeekBar 
         android:id="@+id/seekBar"
-        android:layout_marginRight="140dip"
 		android:layout_alignParentTop="true"
+		android:layout_marginTop="8dip"
 		android:layout_alignParentRight="true"
+        android:layout_marginRight="140dip"
         android:layout_height="wrap_content"
         android:layout_width="200dip"
         />
@@ -32,14 +33,12 @@
 		<SurfaceView
 		    android:id="@+id/surfaceView"
 		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:layout_gravity="bottom" />
+		    android:layout_height="match_parent" />
 		
 		<com.visor.knight.EdgeView
 		    android:id="@+id/edgeView"
 		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:layout_gravity="top" />
+		    android:layout_height="match_parent" />
 	        
 	</FrameLayout>
 </RelativeLayout>

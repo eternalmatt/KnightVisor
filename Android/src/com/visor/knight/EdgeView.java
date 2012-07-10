@@ -49,6 +49,8 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
         this.appContext = context;
         frameRateText.setColor(Color.GREEN);
         frameRateText.setTextSize(textSize);
+        setDrawingCacheEnabled(true);
+        setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
     }
 
     public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
@@ -95,6 +97,11 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
             canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);
             canvas.drawText(String.valueOf(framesPerSecond), 0, textSize, frameRateText);
 
+            if (captureNextFrame) {
+                captureNextFrame = false;
+                PictureHandler.savePicture(appContext, getDrawingCache());
+            }
+
             long now = System.currentTimeMillis();
             if (System.currentTimeMillis() - time > 1000) {
                 framesPerSecond = frames;
@@ -137,10 +144,6 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
                     /* copy the pixels from intBuffer to bitmap */
                     bitmap.copyPixelsFromBuffer(intBuffer);
 
-                    if (captureNextFrame) {
-                        captureNextFrame = false;
-                        PictureHandler.savePicture(appContext, bitmap);
-                    }
                 }
             } finally {
                 cameraPreviewLock.unlock();

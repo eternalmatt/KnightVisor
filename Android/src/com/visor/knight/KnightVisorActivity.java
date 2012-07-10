@@ -4,18 +4,15 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,20 +31,10 @@ public class KnightVisorActivity extends Activity {
 
     public static final String TAG = KnightVisorActivity.class.getSimpleName();
 
+    private ActionBar actionBar = null;
     private Camera camera = null;
     private EdgeView edgeView = null;
-    private ISynthService synthService = null;
-    private ServiceConnection synthServiceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            synthService = ISynthService.Stub.asInterface(service);
-            if (edgeView != null) edgeView.synthService = synthService;
-        }
-
-        public void onServiceDisconnected(ComponentName name) {
-            synthService = null;
-            if (edgeView != null) edgeView.synthService = null;
-        }
-    };
+    private SynthServiceConnection synthServiceConnection = new SynthServiceConnection();
 
     @Override
     protected void onStart() {
@@ -83,12 +70,10 @@ public class KnightVisorActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_with_actionbar);
         edgeView = (EdgeView)this.findViewById(R.id.edgeView);
-        edgeView.synthService = synthService;
+        synthServiceConnection.addViewToBeNotified(edgeView);
 
-        final Activity ctx = this;
-        ActionBar actionBar = (ActionBar)findViewById(R.id.actionbar);
-        actionBar.setTitle("KnightVisor");
-
+        actionBar = (ActionBar)findViewById(R.id.actionbar);
+        actionBar.setTitle(getString(R.string.app_name));
         actionBar.setHomeAction(new ActionBar.Action() {
             public void performAction(View view) {
                 edgeView.setColorSelected(Color.GREEN);
@@ -109,16 +94,7 @@ public class KnightVisorActivity extends Activity {
         });
         actionBar.addAction(new Action() {
             public void performAction(View view) {
-                // TODO Auto-generated method stub
-            }
-
-            public int getDrawable() {
-                return R.drawable.ic_menu_share;
-            }
-        });
-        actionBar.addAction(new Action() {
-            public void performAction(View view) {
-                ctx.openOptionsMenu();
+                KnightVisorActivity.this.openOptionsMenu();
             }
 
             public int getDrawable() {

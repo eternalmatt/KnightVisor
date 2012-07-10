@@ -14,5 +14,6 @@
     <string name="menu_red">Red</string>
     <string name="menu_better">Better</string>
     <string name="takePicture">Take picture</string>
+    <string name="jpeg_mime_type">image/jpeg</string>
 
 </resources>
