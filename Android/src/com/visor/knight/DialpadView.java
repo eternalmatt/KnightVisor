@@ -52,13 +52,10 @@ public class DialpadView extends View implements View.OnTouchListener {
                 case MotionEvent.ACTION_MOVE:
                     synthService.primaryXY(u, v);
                     break;
-                default:
-                    return false;
             }
-            return true;
         } catch (RemoteException e) {
             e.printStackTrace();
-            return false;
         }
+        return true;
     }
 }

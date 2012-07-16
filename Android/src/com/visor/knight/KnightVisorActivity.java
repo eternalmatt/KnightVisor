@@ -42,6 +42,7 @@ public class KnightVisorActivity extends Activity {
         camera = Camera.open();
         Intent synthServiceIntent = new Intent(ISynthService.class.getName());
         bindService(synthServiceIntent, synthServiceConnection, Context.BIND_AUTO_CREATE);
+
     }
 
     @Override
