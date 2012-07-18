@@ -2,36 +2,26 @@ package com.visor.knight;
 
 import java.io.IOException;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.SeekBar;
 import as.adamsmith.etherealdialpad.dsp.ISynthService;
 
-import com.markupartist.android.widget.ActionBar;
-import com.markupartist.android.widget.ActionBar.Action;
+import com.actionbarsherlock.app.SherlockActivity;
 
-public class KnightVisorActivity extends Activity {
+public class KnightVisorActivity extends SherlockActivity {
 
     public static final String TAG = KnightVisorActivity.class.getSimpleName();
 
-    private ActionBar actionBar = null;
+    // private ActionBar actionBar = null;
     private Camera camera = null;
     private EdgeView edgeView = null;
     private SynthServiceConnection synthServiceConnection = new SynthServiceConnection();
@@ -73,6 +63,8 @@ public class KnightVisorActivity extends Activity {
         edgeView = (EdgeView)this.findViewById(R.id.edgeView);
         synthServiceConnection.addViewToBeNotified(edgeView);
 
+        getSupportActionBar();
+        /*
         actionBar = (ActionBar)findViewById(R.id.actionbar);
         actionBar.setTitle(getString(R.string.app_name));
         actionBar.setHomeAction(new ActionBar.Action() {
@@ -102,6 +94,7 @@ public class KnightVisorActivity extends Activity {
                 return R.drawable.ic_menu_moreoverflow_normal_holo_dark;
             }
         });
+        
 
         SeekBar seekBar = (SeekBar)findViewById(R.id.seekBar);
         seekBar.setMax(150);
@@ -115,6 +108,7 @@ public class KnightVisorActivity extends Activity {
                 edgeView.setThresholdManually(150 - progress);
             }
         });
+        */
 
         /* set up window so we get full screen */
         Window window = this.getWindow();
@@ -175,7 +169,7 @@ public class KnightVisorActivity extends Activity {
 
     }
 
-    /* options menu */
+    /* options menu 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -213,4 +207,5 @@ public class KnightVisorActivity extends Activity {
             return super.onOptionsItemSelected(item);
         }
     }
+    */
 }

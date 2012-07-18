@@ -1,44 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/mainRelativeLayout"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" 
-    xmlns:android="http://schemas.android.com/apk/res/android" >
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     
-    <com.markupartist.android.widget.ActionBar
-	    android:id="@+id/actionbar"
-	    style="@style/ActionBar"
-	    />
-    
-    <SeekBar 
-        android:id="@+id/seekBar"
-		android:layout_alignParentTop="true"
-		android:layout_marginTop="8dip"
-		android:layout_alignParentRight="true"
-        android:layout_marginRight="140dip"
-        android:layout_height="wrap_content"
-        android:layout_width="200dip"
-        />
-
-	<FrameLayout
-		android:id="@+id/mainFrameLayout"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/actionbar"
-		android:layout_alignParentBottom="true"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentRight="true"
-		android:animationCache="true"
-		android:persistentDrawingCache="all" >
-		
-		<SurfaceView
-		    android:id="@+id/surfaceView"
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent" />
-		
-		<com.visor.knight.EdgeView
-		    android:id="@+id/edgeView"
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent" />
-	        
-	</FrameLayout>
-</RelativeLayout>
+	android:id="@+id/mainFrameLayout"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:animationCache="true"
+	android:persistentDrawingCache="all" >
+	
+	<SurfaceView
+	    android:id="@+id/surfaceView"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent" />
+	
+	<com.visor.knight.EdgeView
+	    android:id="@+id/edgeView"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent" />
+       
+</merge>
