@@ -2,12 +2,19 @@ package com.visor.knight;
 
 import java.io.IOException;
 
+import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -16,15 +23,34 @@ import android.view.WindowManager;
 import as.adamsmith.etherealdialpad.dsp.ISynthService;
 
 import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 
 public class KnightVisorActivity extends SherlockActivity {
 
     public static final String TAG = KnightVisorActivity.class.getSimpleName();
 
-    // private ActionBar actionBar = null;
+    private boolean ethereal_diaplad_installed = false;
+    private boolean volume_enabled = false;
     private Camera camera = null;
     private EdgeView edgeView = null;
-    private SynthServiceConnection synthServiceConnection = new SynthServiceConnection();
+    private ISynthService synthService = null;
+
+    private ServiceConnection synthServiceConnection = new ServiceConnection() {
+
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            synthService = ISynthService.Stub.asInterface(service);
+            edgeView.setSynthService(synthService);
+            ethereal_diaplad_installed = synthService != null;
+            volume_enabled = true;
+        }
+
+        public void onServiceDisconnected(ComponentName name) {
+            synthService = null;
+            edgeView.setSynthService(null);
+        }
+    };
 
     @Override
     protected void onStart() {
@@ -59,9 +85,9 @@ public class KnightVisorActivity extends SherlockActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_with_actionbar);
+        setContentView(R.layout.main);
         edgeView = (EdgeView)this.findViewById(R.id.edgeView);
-        synthServiceConnection.addViewToBeNotified(edgeView);
+        edgeView.setSynthService(synthService);
 
         getSupportActionBar();
         /*
@@ -169,43 +195,69 @@ public class KnightVisorActivity extends SherlockActivity {
 
     }
 
-    /* options menu 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        this.getMenuInflater().inflate(R.menu.menu, menu);
+
+        menu.add("Share").setIcon(R.drawable.ic_menu_share).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
+        menu.add("Sound").setIcon(R.drawable.ic_volume).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
+        SubMenu colorSub = menu.addSubMenu("Color");
+        colorSub.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        colorSub.add("Red");
+        colorSub.add("Green");
+        colorSub.add("Blue");
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.red) {
+        Log.d(TAG, "Options menu item selected: " + item.getTitle());
+        if (item.getTitle() == "Red") {
             edgeView.setColorSelected(Color.RED);
             return true;
-        } else if (item.getItemId() == R.id.green) {
+        } else if (item.getTitle() == "Green") {
             edgeView.setColorSelected(Color.GREEN);
             return true;
-        } else if (item.getItemId() == R.id.blue) {
+        } else if (item.getTitle() == "Blue") {
             edgeView.setColorSelected(Color.BLUE);
             return true;
-        } else if (item.getItemId() == R.id.launchBrowser) {
+        } else if (item.getTitle() == "Sound") {
 
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.alertTitle);
-            builder.setMessage(R.string.alertMessage);
-            builder.setPositiveButton(R.string.alertPositiveButton, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    Uri url = Uri.parse(getString(R.string.etherealDialpadURL));
-                    Intent intent = new Intent(Intent.ACTION_VIEW, url);
-                    startActivity(intent);
+            if (ethereal_diaplad_installed) {
+
+                /* flip volume_enabled */
+                volume_enabled = !volume_enabled;
+
+                /* flip the icon and set the service on/off */
+                if (volume_enabled) {
+                    item.setIcon(R.drawable.ic_volume);
+                    edgeView.setSynthService(synthService);
+                } else {
+                    item.setIcon(R.drawable.ic_volume_off);
+                    edgeView.setSynthService(null);
                 }
-            });
-            builder.setNegativeButton(R.string.alertNegativeButton, null);
-            builder.show();
+
+            } else {
+
+                /* create an intent to send the user to the Play Store */
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.alertTitle);
+                builder.setMessage(R.string.alertMessage);
+                builder.setPositiveButton(R.string.alertPositiveButton, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Uri url = Uri.parse(getString(R.string.etherealDialpadURL));
+                        Intent intent = new Intent(Intent.ACTION_VIEW, url);
+                        startActivity(intent);
+                    }
+                });
+                builder.setNegativeButton(R.string.alertNegativeButton, null);
+                builder.show();
+            }
             return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
     }
-    */
 }

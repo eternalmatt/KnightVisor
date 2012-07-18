@@ -41,12 +41,6 @@
          End Ethereal Diaplad declaration 
         -->
         
-        <activity
-            android:name="com.markupartist.android.widget.ActionBar"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-        </activity>
-        
-        
     </application>
 
 </manifest>
