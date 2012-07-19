@@ -89,39 +89,7 @@ public class KnightVisorActivity extends SherlockActivity {
         edgeView = (EdgeView)this.findViewById(R.id.edgeView);
         edgeView.setSynthService(synthService);
 
-        getSupportActionBar();
         /*
-        actionBar = (ActionBar)findViewById(R.id.actionbar);
-        actionBar.setTitle(getString(R.string.app_name));
-        actionBar.setHomeAction(new ActionBar.Action() {
-            public void performAction(View view) {
-                edgeView.setColorSelected(Color.GREEN);
-            }
-
-            public int getDrawable() {
-                return R.drawable.ic_launcher;
-            }
-        });
-        actionBar.addAction(new Action() {
-            public void performAction(View view) {
-                edgeView.captureNextFrame();
-            }
-
-            public int getDrawable() {
-                return R.drawable.ic_menu_camera;
-            }
-        });
-        actionBar.addAction(new Action() {
-            public void performAction(View view) {
-                KnightVisorActivity.this.openOptionsMenu();
-            }
-
-            public int getDrawable() {
-                return R.drawable.ic_menu_moreoverflow_normal_holo_dark;
-            }
-        });
-        
-
         SeekBar seekBar = (SeekBar)findViewById(R.id.seekBar);
         seekBar.setMax(150);
         seekBar.setProgress(75);
@@ -137,7 +105,7 @@ public class KnightVisorActivity extends SherlockActivity {
         */
 
         /* set up window so we get full screen */
-        Window window = this.getWindow();
+        final Window window = this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -197,13 +165,19 @@ public class KnightVisorActivity extends SherlockActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        final int with_text_if_room = MenuItem.SHOW_AS_ACTION_WITH_TEXT | MenuItem.SHOW_AS_ACTION_IF_ROOM;
+        MenuItem share = menu.add("Share");
+        share.setIcon(R.drawable.ic_menu_share);
+        share.setOnMenuItemClickListener(shareMenuItemClickListener);
+        share.setShowAsAction(with_text_if_room);
 
-        menu.add("Share").setIcon(R.drawable.ic_menu_share).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-
-        menu.add("Sound").setIcon(R.drawable.ic_volume).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        MenuItem sound = menu.add("Sound");
+        sound.setIcon(ethereal_diaplad_installed ? R.drawable.ic_volume : R.drawable.ic_volume_off);
+        sound.setOnMenuItemClickListener(soundMenuItemClickListener);
+        sound.setShowAsAction(with_text_if_room);
 
         SubMenu colorSub = menu.addSubMenu("Color");
-        colorSub.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        colorSub.getItem().setShowAsAction(with_text_if_room);
         colorSub.add("Red");
         colorSub.add("Green");
         colorSub.add("Blue");
@@ -211,20 +185,15 @@ public class KnightVisorActivity extends SherlockActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d(TAG, "Options menu item selected: " + item.getTitle());
-        if (item.getTitle() == "Red") {
-            edgeView.setColorSelected(Color.RED);
+    final MenuItem.OnMenuItemClickListener shareMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
+        public boolean onMenuItemClick(MenuItem item) {
+            edgeView.captureNextFrame();
             return true;
-        } else if (item.getTitle() == "Green") {
-            edgeView.setColorSelected(Color.GREEN);
-            return true;
-        } else if (item.getTitle() == "Blue") {
-            edgeView.setColorSelected(Color.BLUE);
-            return true;
-        } else if (item.getTitle() == "Sound") {
+        }
+    };
 
+    final MenuItem.OnMenuItemClickListener soundMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
+        public boolean onMenuItemClick(MenuItem item) {
             if (ethereal_diaplad_installed) {
 
                 /* flip volume_enabled */
@@ -242,7 +211,7 @@ public class KnightVisorActivity extends SherlockActivity {
             } else {
 
                 /* create an intent to send the user to the Play Store */
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(KnightVisorActivity.this);
                 builder.setTitle(R.string.alertTitle);
                 builder.setMessage(R.string.alertMessage);
                 builder.setPositiveButton(R.string.alertPositiveButton, new DialogInterface.OnClickListener() {
@@ -255,6 +224,21 @@ public class KnightVisorActivity extends SherlockActivity {
                 builder.setNegativeButton(R.string.alertNegativeButton, null);
                 builder.show();
             }
+            return true;
+        }
+    };
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "Options menu item selected: " + item.getTitle());
+        if (item.getTitle() == "Red") {
+            edgeView.setColorSelected(Color.RED);
+            return true;
+        } else if (item.getTitle() == "Green") {
+            edgeView.setColorSelected(Color.GREEN);
+            return true;
+        } else if (item.getTitle() == "Blue") {
+            edgeView.setColorSelected(Color.BLUE);
             return true;
         } else {
             return super.onOptionsItemSelected(item);

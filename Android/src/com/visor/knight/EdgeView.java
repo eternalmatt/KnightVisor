@@ -99,7 +99,7 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
 
             if (captureNextFrame) {
                 captureNextFrame = false;
-                PictureHandler.savePicture(appContext, getDrawingCache());
+                PictureHandler.savePicture(appContext, bitmap);
             }
 
             long now = System.currentTimeMillis();

@@ -7,5 +7,7 @@
 	<com.visor.knight.EdgeView 
 	    android:id="@+id/edgeView"
 	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent" />
+	    android:layout_height="fill_parent"
+		android:animationCache="true"
+		android:persistentDrawingCache="all" />
 </merge>
