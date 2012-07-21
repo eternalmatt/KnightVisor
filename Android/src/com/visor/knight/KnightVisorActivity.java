@@ -1,3 +1,4 @@
+
 package com.visor.knight;
 
 import java.io.IOException;
@@ -68,7 +69,8 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
 
         unbindService(this);
 
-        if (camera == null) return;
+        if (camera == null)
+            return;
 
         try {
             camera.setPreviewDisplay(null);
@@ -87,20 +89,22 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        edgeView = (EdgeView)this.findViewById(R.id.edgeView);
+        edgeView = (EdgeView) this.findViewById(R.id.edgeView);
         edgeView.setSynthService(synthService);
 
         getSupportActionBar().setCustomView(R.layout.seekbar);
         getSupportActionBar().setDisplayShowHomeEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
 
-        final SeekBar seekBar = (SeekBar)findViewById(R.id.seekBar);
+        final SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
         seekBar.setMax(150);
         seekBar.setProgress(75);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
 
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 edgeView.setThresholdManually(150 - progress);
@@ -113,16 +117,19 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         /* set up a surfaceView where the camera display will be put */
-        final SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceView);
+        final SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         final SurfaceHolder surfaceHolder = surfaceView.getHolder();
         surfaceHolder.setFormat(PixelFormat.TRANSPARENT);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         surfaceHolder.addCallback(new SurfaceHolder.Callback() {
-            public void surfaceDestroyed(SurfaceHolder holder) {} /* doesn't matter */
+            public void surfaceDestroyed(SurfaceHolder holder) {
+            } /* doesn't matter */
 
-            public void surfaceCreated(SurfaceHolder holder) {} /* doesn't matter */
+            public void surfaceCreated(SurfaceHolder holder) {
+            } /* doesn't matter */
 
-            public void surfaceChanged(SurfaceHolder holder, int format, final int width, final int height) {
+            public void surfaceChanged(SurfaceHolder holder, int format, final int width,
+                    final int height) {
                 try {
                     camera.setPreviewDisplay(holder);
                 } catch (IOException e) {
@@ -149,13 +156,15 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
             }
 
             /* helper function to set up the display */
-            private Camera.Size getBestPreviewSize(int width, int height, Camera.Parameters parameters) {
+            private Camera.Size getBestPreviewSize(int width, int height,
+                    Camera.Parameters parameters) {
                 Camera.Size result = null;
 
                 /* trying to get largest possible size */
                 for (final Camera.Size size : parameters.getSupportedPreviewSizes())
                     if (size.width <= width && size.height <= height) {
-                        if (result == null || size.width * size.height > result.width * result.height) {
+                        if (result == null
+                                || size.width * size.height > result.width * result.height) {
                             result = size;
                         }
                     }
@@ -168,7 +177,8 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        final int with_text_if_room = MenuItem.SHOW_AS_ACTION_WITH_TEXT | MenuItem.SHOW_AS_ACTION_IF_ROOM;
+        final int with_text_if_room = MenuItem.SHOW_AS_ACTION_WITH_TEXT
+                | MenuItem.SHOW_AS_ACTION_IF_ROOM;
         MenuItem share = menu.add("Share");
         share.setIcon(R.drawable.ic_menu_share);
         share.setOnMenuItemClickListener(shareMenuItemClickListener);
@@ -214,16 +224,18 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
             } else {
 
                 /* create an intent to send the user to the Play Store */
-                final AlertDialog.Builder builder = new AlertDialog.Builder(KnightVisorActivity.this);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(
+                        KnightVisorActivity.this);
                 builder.setTitle(R.string.alertTitle);
                 builder.setMessage(R.string.alertMessage);
-                builder.setPositiveButton(R.string.alertPositiveButton, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Uri url = Uri.parse(getString(R.string.etherealDialpadURL));
-                        Intent intent = new Intent(Intent.ACTION_VIEW, url);
-                        startActivity(intent);
-                    }
-                });
+                builder.setPositiveButton(R.string.alertPositiveButton,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Uri url = Uri.parse(getString(R.string.etherealDialpadURL));
+                                Intent intent = new Intent(Intent.ACTION_VIEW, url);
+                                startActivity(intent);
+                            }
+                        });
                 builder.setNegativeButton(R.string.alertNegativeButton, null);
                 builder.show();
             }

@@ -1,3 +1,4 @@
+
 package com.visor.knight;
 
 import java.nio.ByteBuffer;
@@ -72,8 +73,8 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
         final float x = event.getX();
         final float y = event.getY();
 
-        int r = (int)(255 * x / (float)getWidth());
-        int g = (int)(255 * y / (float)getHeight());
+        int r = (int) (255 * x / (float) getWidth());
+        int g = (int) (255 * y / (float) getHeight());
         int b = 0;
 
         int color = Color.rgb(r, g, b);
@@ -88,30 +89,32 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
 
         if (cameraPreview == null || cameraPreviewLock.tryLock() == false)
             return;
-        else try {
-            if (canvasRect == null) canvasRect = canvas.getClipBounds();
+        else
+            try {
+                if (canvasRect == null)
+                    canvasRect = canvas.getClipBounds();
 
-            /* draw the canvas onto the screen */
-            canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);
-            canvas.drawText(String.valueOf(framesPerSecond), 0, textSize, frameRateText);
+                /* draw the canvas onto the screen */
+                canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);
+                canvas.drawText(String.valueOf(framesPerSecond), 0, textSize, frameRateText);
 
-            if (captureNextFrame) {
-                captureNextFrame = false;
-                PictureHandler.savePicture(getContext(), bitmap);
+                if (captureNextFrame) {
+                    captureNextFrame = false;
+                    PictureHandler.savePicture(getContext(), bitmap);
+                }
+
+                final long now = System.currentTimeMillis();
+                if (now - time > 1000) {
+                    framesPerSecond = frames;
+                    frames = 0;
+                    time = now;
+                } else {
+                    frames++;
+                }
+
+            } finally {
+                cameraPreviewLock.unlock();
             }
-
-            final long now = System.currentTimeMillis();
-            if (now - time > 1000) {
-                framesPerSecond = frames;
-                frames = 0;
-                time = now;
-            } else {
-                frames++;
-            }
-
-        } finally {
-            cameraPreviewLock.unlock();
-        }
     }
 
     public void onPreviewFrame(byte[] yuv, Camera camera) {
@@ -130,8 +133,10 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
                     bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                 }
 
-                /* TODO: lop off the first N rows based on how many pixels are
-                 * being occupied by the GUI */
+                /*
+                 * TODO: lop off the first N rows based on how many pixels are
+                 * being occupied by the GUI
+                 */
 
                 if (yuv.length < cameraPreview.length)
                     Log.e(TAG, "This camera frame is too damn short!");
@@ -148,8 +153,10 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
                 postInvalidate();
             }
 
-            /* the documentation doesn't say anything about this but it is
-             * necessary..... :( */
+            /*
+             * the documentation doesn't say anything about this but it is
+             * necessary..... :(
+             */
             camera.addCallbackBuffer(yuv);
         }
     }

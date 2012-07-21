@@ -1,3 +1,4 @@
+
 package com.visor.knight;
 
 import android.content.Context;
@@ -36,7 +37,8 @@ public class DialpadView extends View implements View.OnTouchListener {
 
     public boolean onTouch(View view, MotionEvent event) {
 
-        if (synthService == null) return true;
+        if (synthService == null)
+            return true;
 
         final float u = Math.min(1, Math.max(0, event.getX() / getWidth()));
         final float v = Math.min(1, Math.max(0, 1.0f - event.getY() / getHeight()));

@@ -1,3 +1,4 @@
+
 package com.visor.knight;
 
 import java.io.File;
@@ -21,14 +22,17 @@ public class PictureHandler {
 
         if (bitmap == null) {
             Log.e(TAG, "No bitmap in PictureHandler::savePicture");
-            Toast.makeText(context, "No bitmap in PictureHandler::savePicture", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "No bitmap in PictureHandler::savePicture", Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
         Log.d(TAG, "Getting file path and creating file.");
         Toast.makeText(context, "Please wait...", Toast.LENGTH_SHORT).show();
-        File path = new File(Environment.getExternalStorageDirectory(), context.getString(R.string.app_name));
-        if (false == path.exists()) path.mkdir();
+        File path = new File(Environment.getExternalStorageDirectory(),
+                context.getString(R.string.app_name));
+        if (false == path.exists())
+            path.mkdir();
 
         final File file = new File(path, "image.jpg");
 
@@ -36,13 +40,15 @@ public class PictureHandler {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(file));
 
         } catch (FileNotFoundException e) {
-            Toast.makeText(context, "File not written", Toast.LENGTH_SHORT);
+            Toast.makeText(context, "File not written", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
 
         Log.d(TAG, "Bitmap compressed (file written)");
 
-        MediaScannerConnection.scanFile(context, new String[]{ file.getAbsolutePath() }, null, new MediaScannerConnection.OnScanCompletedListener() {
+        MediaScannerConnection.scanFile(context, new String[] {
+                file.getAbsolutePath()
+        }, null, new MediaScannerConnection.OnScanCompletedListener() {
             public void onScanCompleted(String path, Uri uri) {
                 Intent shareIntent = new Intent();
                 shareIntent.setAction(Intent.ACTION_SEND);
