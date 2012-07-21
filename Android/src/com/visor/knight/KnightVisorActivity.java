@@ -20,6 +20,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.SeekBar;
 import as.adamsmith.etherealdialpad.dsp.ISynthService;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -44,6 +45,7 @@ public class KnightVisorActivity extends SherlockActivity {
             edgeView.setSynthService(synthService);
             ethereal_diaplad_installed = synthService != null;
             volume_enabled = true;
+            invalidateOptionsMenu();
         }
 
         public void onServiceDisconnected(ComponentName name) {
@@ -89,7 +91,10 @@ public class KnightVisorActivity extends SherlockActivity {
         edgeView = (EdgeView)this.findViewById(R.id.edgeView);
         edgeView.setSynthService(synthService);
 
-        /*
+        getSupportActionBar().setCustomView(R.layout.seekbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+
         SeekBar seekBar = (SeekBar)findViewById(R.id.seekBar);
         seekBar.setMax(150);
         seekBar.setProgress(75);
@@ -102,7 +107,6 @@ public class KnightVisorActivity extends SherlockActivity {
                 edgeView.setThresholdManually(150 - progress);
             }
         });
-        */
 
         /* set up window so we get full screen */
         final Window window = this.getWindow();
