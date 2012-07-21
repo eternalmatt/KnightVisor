@@ -57,7 +57,7 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
     protected void onStart() {
         super.onStart();
         camera = Camera.open();
-        Intent synthServiceIntent = new Intent(ISynthService.class.getName());
+        final Intent synthServiceIntent = new Intent(ISynthService.class.getName());
         bindService(synthServiceIntent, this, Context.BIND_AUTO_CREATE);
 
     }
@@ -94,7 +94,7 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
         getSupportActionBar().setDisplayShowHomeEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
 
-        SeekBar seekBar = (SeekBar)findViewById(R.id.seekBar);
+        final SeekBar seekBar = (SeekBar)findViewById(R.id.seekBar);
         seekBar.setMax(150);
         seekBar.setProgress(75);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -113,8 +113,8 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         /* set up a surfaceView where the camera display will be put */
-        SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceView);
-        SurfaceHolder surfaceHolder = surfaceView.getHolder();
+        final SurfaceView surfaceView = (SurfaceView)findViewById(R.id.surfaceView);
+        final SurfaceHolder surfaceHolder = surfaceView.getHolder();
         surfaceHolder.setFormat(PixelFormat.TRANSPARENT);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         surfaceHolder.addCallback(new SurfaceHolder.Callback() {
@@ -129,8 +129,8 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
                     e.printStackTrace();
                 }
 
-                Camera.Parameters parameters = camera.getParameters();
-                Camera.Size size = getBestPreviewSize(width, height, parameters);
+                final Camera.Parameters parameters = camera.getParameters();
+                final Camera.Size size = getBestPreviewSize(width, height, parameters);
 
                 /* if we can't get a proper size, don't display */
                 if (size == null) {
@@ -153,7 +153,7 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
                 Camera.Size result = null;
 
                 /* trying to get largest possible size */
-                for (Camera.Size size : parameters.getSupportedPreviewSizes())
+                for (final Camera.Size size : parameters.getSupportedPreviewSizes())
                     if (size.width <= width && size.height <= height) {
                         if (result == null || size.width * size.height > result.width * result.height) {
                             result = size;

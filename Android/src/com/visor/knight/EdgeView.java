@@ -33,7 +33,6 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
     private int framesPerSecond = 0;
     private int frames = 0;
     private float textSize = 30;
-    private Context appContext = null;
     private boolean captureNextFrame = false;
 
     public void captureNextFrame() {
@@ -46,7 +45,6 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
 
     public EdgeView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.appContext = context;
         frameRateText.setColor(Color.GREEN);
         frameRateText.setTextSize(textSize);
         setDrawingCacheEnabled(true);
@@ -99,11 +97,11 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
 
             if (captureNextFrame) {
                 captureNextFrame = false;
-                PictureHandler.savePicture(appContext, bitmap);
+                PictureHandler.savePicture(getContext(), bitmap);
             }
 
-            long now = System.currentTimeMillis();
-            if (System.currentTimeMillis() - time > 1000) {
+            final long now = System.currentTimeMillis();
+            if (now - time > 1000) {
                 framesPerSecond = frames;
                 frames = 0;
                 time = now;
@@ -120,9 +118,9 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
         if (cameraPreviewLock.tryLock() && yuv != null) {
             try {
 
-                Camera.Size size = camera.getParameters().getPreviewSize();
-                int width = size.width;
-                int height = size.height;
+                final Camera.Size size = camera.getParameters().getPreviewSize();
+                final int width = size.width;
+                final int height = size.height;
                 final int length = width * height;
 
                 if (cameraPreview == null || cameraPreview.length != length) {
