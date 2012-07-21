@@ -28,7 +28,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 
-public class KnightVisorActivity extends SherlockActivity {
+public class KnightVisorActivity extends SherlockActivity implements ServiceConnection {
 
     public static final String TAG = KnightVisorActivity.class.getSimpleName();
 
@@ -38,28 +38,27 @@ public class KnightVisorActivity extends SherlockActivity {
     private EdgeView edgeView = null;
     private ISynthService synthService = null;
 
-    private ServiceConnection synthServiceConnection = new ServiceConnection() {
+    /* ServiceConnection methods to work with Adam Smith's ISynthService */
 
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            synthService = ISynthService.Stub.asInterface(service);
-            edgeView.setSynthService(synthService);
-            ethereal_diaplad_installed = synthService != null;
-            volume_enabled = true;
-            invalidateOptionsMenu();
-        }
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        synthService = ISynthService.Stub.asInterface(service);
+        edgeView.setSynthService(synthService);
+        ethereal_diaplad_installed = synthService != null;
+        volume_enabled = true;
+        invalidateOptionsMenu();
+    }
 
-        public void onServiceDisconnected(ComponentName name) {
-            synthService = null;
-            edgeView.setSynthService(null);
-        }
-    };
+    public void onServiceDisconnected(ComponentName name) {
+        synthService = null;
+        edgeView.setSynthService(null);
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
         camera = Camera.open();
         Intent synthServiceIntent = new Intent(ISynthService.class.getName());
-        bindService(synthServiceIntent, synthServiceConnection, Context.BIND_AUTO_CREATE);
+        bindService(synthServiceIntent, this, Context.BIND_AUTO_CREATE);
 
     }
 
@@ -67,7 +66,7 @@ public class KnightVisorActivity extends SherlockActivity {
     protected void onStop() {
         super.onStop();
 
-        unbindService(synthServiceConnection);
+        unbindService(this);
 
         if (camera == null) return;
 
