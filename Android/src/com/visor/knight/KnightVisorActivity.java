@@ -1,8 +1,6 @@
 
 package com.visor.knight;
 
-import java.io.IOException;
-
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,9 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
-import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -22,6 +18,7 @@ import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SeekBar;
+
 import as.adamsmith.etherealdialpad.dsp.ISynthService;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -35,9 +32,9 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
 
     private boolean ethereal_diaplad_installed = false;
     private boolean volume_enabled = false;
-    private Camera camera = null;
     private EdgeView edgeView = null;
     private ISynthService synthService = null;
+    private CameraHandler cameraHandler = null;
 
     /* ServiceConnection methods to work with Adam Smith's ISynthService */
 
@@ -57,32 +54,18 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
     @Override
     protected void onStart() {
         super.onStart();
-        camera = Camera.open();
+
         final Intent synthServiceIntent = new Intent(ISynthService.class.getName());
         bindService(synthServiceIntent, this, Context.BIND_AUTO_CREATE);
-
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
+        cameraHandler.releaseCamera();
         unbindService(this);
 
-        if (camera == null)
-            return;
-
-        try {
-            camera.setPreviewDisplay(null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        /* this is the sequence given on android.com */
-        camera.stopPreview();
-        camera.setPreviewCallback(null);
-        camera.release();
-        camera = null;
     }
 
     @Override
@@ -91,6 +74,8 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
         setContentView(R.layout.main);
         edgeView = (EdgeView) this.findViewById(R.id.edgeView);
         edgeView.setSynthService(synthService);
+
+        cameraHandler = new CameraHandler(edgeView);
 
         getSupportActionBar().setCustomView(R.layout.seekbar);
         getSupportActionBar().setDisplayShowHomeEnabled(false);
@@ -121,64 +106,22 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
         final SurfaceHolder surfaceHolder = surfaceView.getHolder();
         surfaceHolder.setFormat(PixelFormat.TRANSPARENT);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        surfaceHolder.addCallback(new SurfaceHolder.Callback() {
-            public void surfaceDestroyed(SurfaceHolder holder) {
-            } /* doesn't matter */
-
-            public void surfaceCreated(SurfaceHolder holder) {
-            } /* doesn't matter */
-
-            public void surfaceChanged(SurfaceHolder holder, int format, final int width,
-                    final int height) {
-                try {
-                    camera.setPreviewDisplay(holder);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                final Camera.Parameters parameters = camera.getParameters();
-                final Camera.Size size = getBestPreviewSize(width, height, parameters);
-
-                /* if we can't get a proper size, don't display */
-                if (size == null) {
-                    Log.e(TAG, "Could not get a valid camera size");
-                    return;
-                }
-
-                parameters.setPreviewSize(size.width, size.height);
-                parameters.setPreviewFormat(ImageFormat.NV21);
-
-                /* set up the camera and start preview */
-                camera.setParameters(parameters);
-                camera.addCallbackBuffer(new byte[size.width * size.height * 4]);
-                camera.setPreviewCallbackWithBuffer(edgeView);
-                camera.startPreview();
-            }
-
-            /* helper function to set up the display */
-            private Camera.Size getBestPreviewSize(int width, int height,
-                    Camera.Parameters parameters) {
-                Camera.Size result = null;
-
-                /* trying to get largest possible size */
-                for (final Camera.Size size : parameters.getSupportedPreviewSizes())
-                    if (size.width <= width && size.height <= height) {
-                        if (result == null
-                                || size.width * size.height > result.width * result.height) {
-                            result = size;
-                        }
-                    }
-
-                return result;
-            }
-        }); // end SurfaceHolder.Callback
+        surfaceHolder.addCallback(cameraHandler);
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        final int with_text_if_room = MenuItem.SHOW_AS_ACTION_WITH_TEXT
-                | MenuItem.SHOW_AS_ACTION_IF_ROOM;
+        final int with_text_if_room = MenuItem.SHOW_AS_ACTION_IF_ROOM
+                // | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
+                | MenuItem.SHOW_AS_ACTION_WITH_TEXT;
+
+        if (cameraHandler.getNumberOfCameras() > 1) {
+            MenuItem camera = menu.add("Camera");
+            camera.setOnMenuItemClickListener(cameraMenuItemClickListener);
+            camera.setShowAsAction(with_text_if_room);
+        }
+
         MenuItem share = menu.add("Share");
         share.setIcon(R.drawable.ic_menu_share);
         share.setOnMenuItemClickListener(shareMenuItemClickListener);
@@ -197,6 +140,13 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
 
         return true;
     }
+
+    final MenuItem.OnMenuItemClickListener cameraMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
+        public boolean onMenuItemClick(MenuItem item) {
+            cameraHandler.setToNextCamera();
+            return true;
+        }
+    };
 
     final MenuItem.OnMenuItemClickListener shareMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
         public boolean onMenuItemClick(MenuItem item) {
