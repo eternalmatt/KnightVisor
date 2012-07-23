@@ -2,6 +2,7 @@
 package com.visor.knight;
 
 import android.graphics.ImageFormat;
+import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -10,21 +11,24 @@ import android.view.SurfaceHolder;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class CameraHandler implements SurfaceHolder.Callback {
+public class CameraHandler {
     private static final String TAG = CameraHandler.class.getSimpleName();
 
-    private int cameraId = 0; // zero by default (we're assuming one camera)
-    private Camera camera = null;
     private final Camera.PreviewCallback previewCallback;
+    private final SurfaceHolder surfaceHolder;
     private final int numberOfCameras = Camera.getNumberOfCameras();
 
+    private int cameraId = 0;
+    private Camera camera = null;
+
     private AsyncTask<Integer, Void, Camera> cameraOpener = null;
+    private SurfaceHolder.Callback surfaceHolderCallback = null;
 
     public int getCameraId() {
         return cameraId;
     }
 
-    private void setCameraId(int cameraId) {
+    public void setCameraId(int cameraId) {
 
         // reset cameraId if invalid
         if (cameraId >= numberOfCameras)
@@ -42,16 +46,26 @@ public class CameraHandler implements SurfaceHolder.Callback {
         setCameraId(cameraId + 1);
     }
 
-    protected int getNumberOfCameras() {
+    public int getNumberOfCameras() {
         return numberOfCameras;
     }
 
-    public CameraHandler(Camera.PreviewCallback previewCallback) {
+    public CameraHandler(Camera.PreviewCallback previewCallback, SurfaceHolder surfaceHolder) {
         this.previewCallback = previewCallback;
+        this.surfaceHolder = surfaceHolder;
+        surfaceHolder.setFormat(PixelFormat.TRANSPARENT);
+        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
         openCamera();
     }
 
-    private void openCamera() {
+    /**
+     * Whoever is opening the camera hopefully has a good reason to do so, and
+     * the cameraId is already set
+     */
+    public void openCamera() {
+        surfaceHolder.removeCallback(surfaceHolderCallback);
+
         cameraOpener = new AsyncTask<Integer, Void, Camera>() {
             protected void onPreExecute() {
                 releaseCamera();
@@ -66,6 +80,10 @@ public class CameraHandler implements SurfaceHolder.Callback {
             }
         };
         cameraOpener.execute(cameraId);
+
+        this.surfaceHolderCallback = getNewSurfaceHolderCallback();
+
+        surfaceHolder.addCallback(surfaceHolderCallback);
     }
 
     public boolean releaseCamera() {
@@ -88,67 +106,69 @@ public class CameraHandler implements SurfaceHolder.Callback {
         return true;
     }
 
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    protected SurfaceHolder.Callback getNewSurfaceHolderCallback() {
+        return new SurfaceHolder.Callback() {
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
-        try {
-            if (camera == null)
-                camera = cameraOpener.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return;
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        try {
-            camera.setPreviewDisplay(holder);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        final Camera.Parameters parameters = camera.getParameters();
-        final Camera.Size size = getBestPreviewSize(width, height, parameters);
-
-        /* if we can't get a proper size, don't display */
-        if (size == null) {
-            Log.e(TAG, "Could not get a valid camera size");
-            return;
-        }
-
-        parameters.setPreviewSize(size.width, size.height);
-        parameters.setPreviewFormat(ImageFormat.NV21);
-
-        /* set up the camera and start preview */
-        camera.setParameters(parameters);
-        camera.addCallbackBuffer(new byte[size.width * size.height * 4]);
-        camera.setPreviewCallbackWithBuffer(previewCallback);
-        camera.startPreview();
-    }
-
-    /* helper function to set up the display */
-    private Camera.Size getBestPreviewSize(
-            int width, int height,
-            Camera.Parameters parameters) {
-
-        Camera.Size result = null;
-
-        /* trying to get largest possible size */
-        for (final Camera.Size size : parameters.getSupportedPreviewSizes())
-            if (size.width <= width && size.height <= height) {
-                if (result == null
-                        || size.width * size.height > result.width * result.height) {
-                    result = size;
+                try {
+                    if (camera == null)
+                        camera = cameraOpener.get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    return;
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                    return;
                 }
+
+                try {
+                    camera.setPreviewDisplay(holder);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                final Camera.Parameters parameters = camera.getParameters();
+                final Camera.Size size = getBestPreviewSize(width, height, parameters);
+
+                /* if we can't get a proper size, don't display */
+                if (size == null) {
+                    Log.e(TAG, "Could not get a valid camera size");
+                    return;
+                }
+
+                parameters.setPreviewSize(size.width, size.height);
+                parameters.setPreviewFormat(ImageFormat.NV21);
+
+                /* set up the camera and start preview */
+                camera.setParameters(parameters);
+                camera.addCallbackBuffer(new byte[size.width * size.height * 4]);
+                camera.setPreviewCallbackWithBuffer(previewCallback);
+                camera.startPreview();
             }
 
-        return result;
-    }
+            /* helper function to set up the display */
+            private Camera.Size getBestPreviewSize(int width, int height,
+                    Camera.Parameters parameters) {
 
-    public void surfaceCreated(SurfaceHolder holder) {
-    }
+                Camera.Size result = null;
 
-    public void surfaceDestroyed(SurfaceHolder holder) {
-    }
+                /* trying to get largest possible size */
+                for (final Camera.Size size : parameters.getSupportedPreviewSizes())
+                    if (size.width <= width && size.height <= height) {
+                        if (result == null
+                                || size.width * size.height > result.width * result.height) {
+                            result = size;
+                        }
+                    }
 
+                return result;
+            }
+
+            public void surfaceCreated(SurfaceHolder holder) {
+            }
+
+            public void surfaceDestroyed(SurfaceHolder holder) {
+            }
+        };
+    }
 }
