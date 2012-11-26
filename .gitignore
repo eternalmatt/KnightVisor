@@ -13,8 +13,8 @@
 # generated files
 bin/
 gen/
-libs/
 obj/
+libnative.so
 
 # Local configuration file (sdk path, etc)
 local.properties

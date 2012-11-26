@@ -2,81 +2,34 @@
 package com.visor.knight;
 
 import android.app.AlertDialog;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 
-import as.adamsmith.etherealdialpad.dsp.ISynthService;
-
-import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 
-public class KnightVisorActivity extends SherlockActivity implements ServiceConnection {
+public class KnightVisorActivity extends SherlockFragmentActivity {
 
     public static final String TAG = KnightVisorActivity.class.getSimpleName();
 
-    private boolean ethereal_diaplad_installed = false;
-    private boolean volume_enabled = false;
-    private EdgeView edgeView = null;
-    private ISynthService synthService = null;
-    private CameraHandler cameraHandler = null;
-
-    /* ServiceConnection methods to work with Adam Smith's ISynthService */
-
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        synthService = ISynthService.Stub.asInterface(service);
-        edgeView.setSynthService(synthService);
-        ethereal_diaplad_installed = synthService != null;
-        volume_enabled = true;
-        invalidateOptionsMenu();
-    }
-
-    public void onServiceDisconnected(ComponentName name) {
-        synthService = null;
-        edgeView.setSynthService(null);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        final Intent synthServiceIntent = new Intent(ISynthService.class.getName());
-        bindService(synthServiceIntent, this, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        cameraHandler.releaseCamera();
-        unbindService(this);
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        cameraHandler.openCamera();
-    }
-
+    //@InjectFragment(R.id.sobel_fragment) 
+    SobelFragment sobelFragment;
+    
+    boolean volume_enabled = false;
+   
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        edgeView = (EdgeView) this.findViewById(R.id.edgeView);
-        edgeView.setSynthService(synthService);
+        setContentView(R.layout.main_activity);
+        
+        sobelFragment = (SobelFragment) this.getSupportFragmentManager().findFragmentById(R.id.sobel_fragment);
 
         getSupportActionBar().setCustomView(R.layout.seekbar);
         getSupportActionBar().setDisplayShowHomeEnabled(false);
@@ -93,7 +46,7 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
             }
 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                edgeView.setThresholdManually(150 - progress);
+                sobelFragment.setSobelThresholdAsPercentage(progress);
             }
         });
 
@@ -101,12 +54,6 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
         final Window window = this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        /* set up a surfaceView where the camera display will be put */
-        final SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
-        final SurfaceHolder surfaceHolder = surfaceView.getHolder();
-
-        cameraHandler = new CameraHandler(edgeView, surfaceHolder);
     }
 
     @Override
@@ -115,7 +62,7 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
                 // | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT;
 
-        if (cameraHandler.getNumberOfCameras() > 1) {
+        if (true) {//cameraHandler.getNumberOfCameras() > 1) {
             MenuItem camera = menu.add("Camera");
             camera.setOnMenuItemClickListener(cameraMenuItemClickListener);
             camera.setShowAsAction(with_text_if_room);
@@ -127,7 +74,7 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
         share.setShowAsAction(with_text_if_room);
 
         MenuItem sound = menu.add("Sound");
-        sound.setIcon(ethereal_diaplad_installed ? R.drawable.ic_volume : R.drawable.ic_volume_off);
+        //sound.setIcon(ethereal_diaplad_installed ? R.drawable.ic_volume : R.drawable.ic_volume_off);
         sound.setOnMenuItemClickListener(soundMenuItemClickListener);
         sound.setShowAsAction(with_text_if_room);
 
@@ -142,24 +89,21 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
 
     final MenuItem.OnMenuItemClickListener cameraMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
         public boolean onMenuItemClick(MenuItem item) {
-            cameraHandler.setToNextCamera();
-            // ((SurfaceView)
-            // findViewById(R.id.surfaceView)).getHolder().addCallback(
-            // cameraHandler.getSurfaceHolderCallback());
+            sobelFragment.nextCameraClicked();
             return true;
         }
     };
 
     final MenuItem.OnMenuItemClickListener shareMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
         public boolean onMenuItemClick(MenuItem item) {
-            edgeView.captureNextFrame();
-            return true;
+            sobelFragment.shareImageClicked();
+        	return true;
         }
     };
 
     final MenuItem.OnMenuItemClickListener soundMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
         public boolean onMenuItemClick(MenuItem item) {
-            if (ethereal_diaplad_installed) {
+            if (sobelFragment.getEtherealDialpadInstalled()) {
 
                 /* flip volume_enabled */
                 volume_enabled = !volume_enabled;
@@ -167,11 +111,10 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
                 /* flip the icon and set the service on/off */
                 if (volume_enabled) {
                     item.setIcon(R.drawable.ic_volume);
-                    edgeView.setSynthService(synthService);
                 } else {
                     item.setIcon(R.drawable.ic_volume_off);
-                    edgeView.setSynthService(null);
                 }
+                sobelFragment.enableVolume(volume_enabled);
 
             } else {
 
@@ -194,7 +137,9 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
             return true;
         }
     };
-
+    
+/*
+ * this was all dumb anyway 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d(TAG, "Options menu item selected: " + item.getTitle());
@@ -211,4 +156,5 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
             return super.onOptionsItemSelected(item);
         }
     }
+    */
 }

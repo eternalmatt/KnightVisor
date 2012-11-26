@@ -20,7 +20,7 @@ import android.view.View;
 
 public class EdgeView extends DialpadView implements Camera.PreviewCallback, Camera.PictureCallback {
 
-    private static final String TAG = EdgeView.class.getSimpleName();
+	private static final String TAG = EdgeView.class.getSimpleName();
     private final Paint frameRateText = new Paint();
     private final Lock cameraPreviewLock = new ReentrantLock();
 
@@ -43,16 +43,27 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
     static {
         System.loadLibrary("native");
     }
-
-    public EdgeView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        frameRateText.setColor(Color.GREEN);
-        frameRateText.setTextSize(textSize);
-        setDrawingCacheEnabled(true);
-        setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+    
+    {   /* Class initializer. This should happen no matter what constructor is used */
+    	frameRateText.setColor(Color.GREEN);
+    	frameRateText.setTextSize(textSize);
+    	setDrawingCacheEnabled(true);
+    	setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
     }
+    
+	public EdgeView(Context context) {
+		super(context);
+	}
+	
+	public EdgeView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+	}
 
-    public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
+	public EdgeView(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+	}
+	
+	public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
 
     public native void setThresholdManually(int threshold);
 

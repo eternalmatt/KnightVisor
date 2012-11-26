@@ -1,6 +1,9 @@
 
 package com.visor.knight;
 
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
@@ -8,14 +11,11 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
 public class CameraHandler {
     private static final String TAG = CameraHandler.class.getSimpleName();
 
-    private final Camera.PreviewCallback previewCallback;
-    private final SurfaceHolder surfaceHolder;
+    private Camera.PreviewCallback previewCallback;
+    private SurfaceHolder surfaceHolder;
     private final int numberOfCameras = Camera.getNumberOfCameras();
 
     private int cameraId = 0;
@@ -49,14 +49,29 @@ public class CameraHandler {
     public int getNumberOfCameras() {
         return numberOfCameras;
     }
+   
+    public Camera.PreviewCallback getPreviewCallback() {
+		return previewCallback;
+	}
 
-    public CameraHandler(Camera.PreviewCallback previewCallback, SurfaceHolder surfaceHolder) {
+	public void setPreviewCallback(Camera.PreviewCallback previewCallback) {
+		this.previewCallback = previewCallback;
+	}
+
+	public SurfaceHolder getSurfaceHolder() {
+		return surfaceHolder;
+	}
+
+	public void setSurfaceHolder(SurfaceHolder surfaceHolder) {
+		this.surfaceHolder = surfaceHolder;
+	}
+
+	@SuppressWarnings("deprecation")
+	public CameraHandler(Camera.PreviewCallback previewCallback, SurfaceHolder surfaceHolder) {
         this.previewCallback = previewCallback;
         this.surfaceHolder = surfaceHolder;
         surfaceHolder.setFormat(PixelFormat.TRANSPARENT);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
-        openCamera();
     }
 
     /**
@@ -72,10 +87,16 @@ public class CameraHandler {
             }
 
             protected Camera doInBackground(Integer... params) {
-                return Camera.open(params[0]);
+            	try {
+            		return Camera.open(params[0]);
+            	} catch (RuntimeException e) {
+            		e.printStackTrace();
+            		return null;
+            	}            	
             }
 
             protected void onPostExecute(Camera result) {
+            	Log.d("Camera", "Camera has been opened");
                 camera = result;
             }
         };
@@ -102,6 +123,7 @@ public class CameraHandler {
             camera.setPreviewCallback(null);
             camera.release();
             camera = null;
+            Log.d("Camera", "Camera has been released");
         }
         return true;
     }
@@ -113,6 +135,8 @@ public class CameraHandler {
                 try {
                     if (camera == null)
                         camera = cameraOpener.get();
+                    if (camera == null) 
+                    	return;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     return;

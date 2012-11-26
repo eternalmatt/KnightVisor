@@ -32,7 +32,7 @@
         
         <!-- For the Ethereal Dialpad (if it is installed on user's device) -->
         <activity-alias
-            android:name=".ForwardingDummy"
+            android:name="android.app.alias"
             android:targetActivity=".KnightVisorActivity"
             android:icon="@drawable/ic_launcher"
             android:label="@string/dialpadDescription" >
