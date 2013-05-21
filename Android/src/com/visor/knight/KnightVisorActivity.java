@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
-import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -62,10 +61,14 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
     @Override
     protected void onStop() {
         super.onStop();
-
         cameraHandler.releaseCamera();
         unbindService(this);
+    }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        cameraHandler.openCamera();
     }
 
     @Override
@@ -74,8 +77,6 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
         setContentView(R.layout.main);
         edgeView = (EdgeView) this.findViewById(R.id.edgeView);
         edgeView.setSynthService(synthService);
-
-        cameraHandler = new CameraHandler(edgeView);
 
         getSupportActionBar().setCustomView(R.layout.seekbar);
         getSupportActionBar().setDisplayShowHomeEnabled(false);
@@ -104,10 +105,8 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
         /* set up a surfaceView where the camera display will be put */
         final SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         final SurfaceHolder surfaceHolder = surfaceView.getHolder();
-        surfaceHolder.setFormat(PixelFormat.TRANSPARENT);
-        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        surfaceHolder.addCallback(cameraHandler);
 
+        cameraHandler = new CameraHandler(edgeView, surfaceHolder);
     }
 
     @Override
@@ -144,6 +143,9 @@ public class KnightVisorActivity extends SherlockActivity implements ServiceConn
     final MenuItem.OnMenuItemClickListener cameraMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
         public boolean onMenuItemClick(MenuItem item) {
             cameraHandler.setToNextCamera();
+            // ((SurfaceView)
+            // findViewById(R.id.surfaceView)).getHolder().addCallback(
+            // cameraHandler.getSurfaceHolderCallback());
             return true;
         }
     };
