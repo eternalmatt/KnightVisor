@@ -1,1 +1,30 @@
 An edge detecting Android app
+
+todos in this branch.
+Migrate majority of logic out of EdgeView and into an
+interface EdgeConverter {
+   public Bitmap convertFrame(byte[] yuv, int height, int width);
+}
+
+And EdgeView becomes
+class EdgeView extends etc 
+{
+    //implement onDraw
+    //implement onTouch
+    //implement Camera.PictureCallback
+    //implement setEdgeConverter
+    
+    onPreviewFrame{
+        if (cameraLock.trylock()){
+	    bitmap = edgeConverter.convertFrame
+	}
+    }
+}
+
+
+Then there can be
+class NativeConverter       implements EdgeConverter
+class FilterScriptConverter implements EdgeConverter 
+
+
+
