@@ -80,7 +80,7 @@ public class SobelFragment extends Fragment implements ServiceConnection {
     }
     
     public void setSobelThresholdAsPercentage(int p) {
-    	edgeView.setThresholdManually(150 - p);
+    	//TODO edgeView.setThresholdManually(150 - p);
     }
     
     

@@ -1,8 +1,6 @@
 
 package com.visor.knight;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -28,20 +26,24 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
     private Rect canvasRect = null;
     private Rect cameraRect = null;
 
-    private IntBuffer intBuffer = null;
     private byte[] cameraPreview = null;
     private long time = System.currentTimeMillis();
     private int framesPerSecond = 0;
     private int frames = 0;
     private float textSize = 30;
     private boolean captureNextFrame = false;
+    private EdgeConverter edgeConverter = null;
+
+    public EdgeConverter getEdgeConverter() {
+        return edgeConverter;
+    }
+
+    public void setEdgeConverter(EdgeConverter edgeConverter) {
+        this.edgeConverter = edgeConverter;
+    }
 
     public void captureNextFrame() {
         this.captureNextFrame = true;
-    }
-
-    static {
-        System.loadLibrary("native");
     }
     
     {   /* Class initializer. This should happen no matter what constructor is used */
@@ -63,21 +65,6 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
 		super(context, attrs, defStyle);
 	}
 	
-	public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
-
-    public native void setThresholdManually(int threshold);
-
-    public native void setColorSelected(int color);
-
-    public native void setMedianFiltering(boolean on);
-
-    public native void grayscaleOnly(boolean gray);
-
-    public native void automaticThresholding(boolean automatic);
-
-    public native void logarithmicTransform(boolean on);
-
-    public native void setSoftEdges(boolean soft);
 
     @Override
     public boolean onTouch(View view, MotionEvent event) {
@@ -89,7 +76,7 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
         int b = 0;
 
         int color = Color.rgb(r, g, b);
-        this.setColorSelected(color);
+        //TODO this.setColorSelected(color);
 
         /* Must call super for the DialpadView to intercept touch */
         return super.onTouch(view, event);
@@ -140,24 +127,15 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
                 if (cameraPreview == null || cameraPreview.length != length) {
                     cameraRect = new Rect(0, 0, width, height);
                     cameraPreview = new byte[length];
-                    intBuffer = ByteBuffer.allocateDirect(length * 4).asIntBuffer();
-                    bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                 }
-
-                /*
-                 * TODO: lop off the first N rows based on how many pixels are
-                 * being occupied by the GUI
-                 */
 
                 if (yuv.length < cameraPreview.length)
                     Log.e(TAG, "This camera frame is too damn short!");
                 else {
-                    /* do some processing in seaworld */
-                    nativeProcessing(yuv, width, height, intBuffer);
 
-                    /* copy the pixels from intBuffer to bitmap */
-                    bitmap.copyPixelsFromBuffer(intBuffer);
-
+                    edgeConverter = new NativeConverter(width, height); //TODO
+                    bitmap = edgeConverter.convertFrame(yuv);
+                    
                 }
             } finally {
                 cameraPreviewLock.unlock();
