@@ -11,8 +11,19 @@ public abstract class EdgeConverter {
         this.height = height;
     }
     
+    public static EdgeConverter getDefaultConverter(int width, int height) {
+        return new NativeConverter(width, height);
+    }
+
+    public abstract void setThreshold(int threshold);
+    public abstract void setColor(int color);
+    public abstract void setMedianFiltering(boolean medianFiltering);
+    public abstract void setGrayscaleOnly(boolean grayscaleOnly);
+    public abstract void setAutomaticThreshold(boolean automaticThreshold);
+    public abstract void setLogarithmicTransform(boolean logarithmicTransform);
+    public abstract void setSoftEdges(boolean softEdges);
+    
     public abstract Bitmap convertFrame(final byte yuvFrame[]);
     
-    public abstract void setEdgeOptions(EdgeOptions options);
     
 }

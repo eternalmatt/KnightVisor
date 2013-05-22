@@ -20,7 +20,7 @@ JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_nativeProcessing
  * Method:    setThresholdManually
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setThresholdManually
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setThreshold
   (JNIEnv *, jobject, jint);
 
 /*
@@ -28,7 +28,7 @@ JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setThresholdManuall
  * Method:    setColorSelected
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setColorSelected
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setColor
   (JNIEnv *, jobject, jint);
 
 /*
@@ -44,7 +44,7 @@ JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setMedianFiltering
  * Method:    grayscaleOnly
  * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_grayscaleOnly
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setGrayscaleOnly
   (JNIEnv *, jobject, jboolean);
 
 /*
@@ -52,7 +52,7 @@ JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_grayscaleOnly
  * Method:    automaticThresholding
  * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_automaticThresholding
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setAutomaticThreshold
   (JNIEnv *, jobject, jboolean);
 
 /*
@@ -60,7 +60,7 @@ JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_automaticThresholdi
  * Method:    logarithmicTransform
  * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_logarithmicTransform
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setLogarithmicTransform
   (JNIEnv *, jobject, jboolean);
 
 /*

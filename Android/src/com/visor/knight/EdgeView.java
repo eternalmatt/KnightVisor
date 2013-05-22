@@ -76,7 +76,10 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
         int b = 0;
 
         int color = Color.rgb(r, g, b);
-        //TODO this.setColorSelected(color);
+        EdgeConverter converter = getEdgeConverter();
+        if (converter != null) {
+            converter.setColor(color);
+        }
 
         /* Must call super for the DialpadView to intercept touch */
         return super.onTouch(view, event);
@@ -133,7 +136,9 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
                     Log.e(TAG, "This camera frame is too damn short!");
                 else {
 
-                    edgeConverter = new NativeConverter(width, height); //TODO
+                    if (edgeConverter == null) {
+                        edgeConverter = EdgeConverter.getDefaultConverter(width, height);
+                    }
                     bitmap = edgeConverter.convertFrame(yuv);
                     
                 }

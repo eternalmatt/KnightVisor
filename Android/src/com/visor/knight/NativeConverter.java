@@ -10,13 +10,13 @@ public class NativeConverter extends EdgeConverter {
     /* everything native */
     static { System.loadLibrary("native"); }
     public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
-    public native void setThresholdManually(int threshold);
-    public native void setColorSelected(int color);
-    public native void setMedianFiltering(boolean on);
-    public native void grayscaleOnly(boolean gray);
-    public native void automaticThresholding(boolean automatic);
-    public native void logarithmicTransform(boolean on);
-    public native void setSoftEdges(boolean soft);
+    public native void setThreshold(int threshold);
+    public native void setColor(int color);
+    public native void setMedianFiltering(boolean medianFiltering);
+    public native void setGrayscaleOnly(boolean grayscaleOnly);
+    public native void setAutomaticThreshold(boolean automaticThreshold);
+    public native void setLogarithmicTransform(boolean logarithmicTransform);
+    public native void setSoftEdges(boolean softEdges);
     
     private final IntBuffer intBuffer;
     private final Bitmap bitmap;
@@ -37,15 +37,4 @@ public class NativeConverter extends EdgeConverter {
         return bitmap;
     }
     
-    @Override
-    public void setEdgeOptions(EdgeOptions options) {
-        setThresholdManually(options.getThreshold());
-        setColorSelected(options.getColor());
-        setMedianFiltering(options.isMedianFiltering());
-        grayscaleOnly(options.isGrayscaleOnly());
-        automaticThresholding(options.isAutomaticThreshold());
-        logarithmicTransform(options.isLogarithmicTransform());
-        setSoftEdges(options.isSoftEdges());
-    }
-
 }

@@ -27,25 +27,25 @@ JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setMedianFiltering
     medianEnabled = on;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setThresholdManually
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setThreshold
     (JNIEnv *env, jobject thiz, jint thresh)
 {
     threshold = thresh;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_grayscaleOnly
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setGrayscaleOnly
 (JNIEnv *env, jobject obj, jboolean gray)
 {
     grayscale = gray;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_automaticThresholding
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setAutomaticThreshold
 (JNIEnv *env, jobject obj, jboolean autoT)
 {
     automaticT = autoT;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_logarithmicTransform
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setLogarithmicTransform
 (JNIEnv *env, jobject obj, jboolean on)
 {
     logEnabled = on;
@@ -57,7 +57,7 @@ JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setSoftEdges
     softEdges = on;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setColorSelected
+JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setColor
     (JNIEnv *env, jobject thiz, jint userColor)
 {
     /* For some reason the colors get mixed up and we
