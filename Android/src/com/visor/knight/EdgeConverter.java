@@ -13,4 +13,6 @@ public abstract class EdgeConverter {
     
     public abstract Bitmap convertFrame(final byte yuvFrame[]);
     
+    public abstract void setEdgeOptions(EdgeOptions options);
+    
 }

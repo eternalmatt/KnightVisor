@@ -36,5 +36,16 @@ public class NativeConverter extends EdgeConverter {
         bitmap.copyPixelsFromBuffer(intBuffer);
         return bitmap;
     }
+    
+    @Override
+    public void setEdgeOptions(EdgeOptions options) {
+        setThresholdManually(options.getThreshold());
+        setColorSelected(options.getColor());
+        setMedianFiltering(options.isMedianFiltering());
+        grayscaleOnly(options.isGrayscaleOnly());
+        automaticThresholding(options.isAutomaticThreshold());
+        logarithmicTransform(options.isLogarithmicTransform());
+        setSoftEdges(options.isSoftEdges());
+    }
 
 }
