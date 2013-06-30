@@ -4,6 +4,7 @@ package com.visor.knight;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Window;
@@ -39,12 +40,8 @@ public class KnightVisorActivity extends SherlockFragmentActivity {
         seekBar.setMax(150);
         seekBar.setProgress(75);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {}
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 sobelFragment.setSobelThresholdAsPercentage(progress);
             }
@@ -62,7 +59,7 @@ public class KnightVisorActivity extends SherlockFragmentActivity {
                 // | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
                 | MenuItem.SHOW_AS_ACTION_WITH_TEXT;
 
-        if (true) {//cameraHandler.getNumberOfCameras() > 1) {
+        if (Camera.getNumberOfCameras() > 1) {
             MenuItem camera = menu.add("Camera");
             camera.setOnMenuItemClickListener(cameraMenuItemClickListener);
             camera.setShowAsAction(with_text_if_room);
@@ -138,23 +135,4 @@ public class KnightVisorActivity extends SherlockFragmentActivity {
         }
     };
     
-/*
- * this was all dumb anyway 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d(TAG, "Options menu item selected: " + item.getTitle());
-        if (item.getTitle() == "Red") {
-            edgeView.setColorSelected(Color.RED);
-            return true;
-        } else if (item.getTitle() == "Green") {
-            edgeView.setColorSelected(Color.GREEN);
-            return true;
-        } else if (item.getTitle() == "Blue") {
-            edgeView.setColorSelected(Color.BLUE);
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
-    }
-    */
 }
