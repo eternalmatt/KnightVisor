@@ -15,7 +15,7 @@ bin/
 gen/
 obj/
 libnative.so
-res/raw/
+raw/
 
 # Local configuration file (sdk path, etc)
 local.properties
