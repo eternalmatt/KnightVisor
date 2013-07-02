@@ -23,22 +23,25 @@ public class FilterscriptConverter extends EdgeConverter {
 	public void setSoftEdges(boolean softEdges) {
 	}
 	
-	private final ScriptC_filter mScript = null;
-	private final Allocation inAllocation;
-	private final Allocation outAllocation;
-	private final Bitmap outBitmap;
+	private final RenderScript rs;
+	private final ScriptC_filter mScript;
+	private Allocation inAllocation;
+	private Allocation outAllocation;
+	private Bitmap outBitmap;
 	
-	public FilterscriptConverter(Context ctx, int width, int height) {
-		super(width, height);
-		/* potentially correct declarations */
-		RenderScript rs = RenderScript.create(ctx);
-		inAllocation  = Allocation.createSized(rs, Element.RGBA_8888(rs), width*height, Allocation.USAGE_SCRIPT);
-		outAllocation = Allocation.createSized(rs, Element.RGBA_8888(rs), width*height, Allocation.USAGE_SCRIPT);
+	public FilterscriptConverter(Context ctx){
+		this.rs = RenderScript.create(ctx);
+		mScript = new ScriptC_filter(rs, ctx.getResources(), R.raw.filter);
+	}
+	
+	@Override
+	protected void initialize(int width, int height) {;
+		outBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		inAllocation  = Allocation.createFromBitmap(rs, outBitmap);
+		outAllocation = Allocation.createFromBitmap(rs, outBitmap);
 		mScript.set_in(inAllocation);
 		mScript.set_width(width);
 		mScript.set_height(height);
-		outBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-
 	}
 	
 	public Bitmap convertFrame(byte[] yuvFrame) {

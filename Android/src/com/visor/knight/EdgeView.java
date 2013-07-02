@@ -138,11 +138,14 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
                 else {
 
                     if (edgeConverter == null) {
-                        edgeConverter = EdgeConverter.getDefaultConverter(width, height);
+                        edgeConverter = new FilterscriptConverter(getContext());
+                        edgeConverter.setSize(width, height);
                     }
                     bitmap = edgeConverter.convertFrame(yuv);
                     
                 }
+            } catch(Exception e) {
+            	Log.e(TAG, Log.getStackTraceString(e));
             } finally {
                 cameraPreviewLock.unlock();
                 postInvalidate();
