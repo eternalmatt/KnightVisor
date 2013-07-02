@@ -23,8 +23,6 @@ public final class CameraSurfaceCallback implements SurfaceHolder.Callback {
         this.previewCallback = previewCallback;
     }
     
-    
-
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
         try {

@@ -32,6 +32,7 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
     private int frames = 0;
     private float textSize = 30;
     private boolean captureNextFrame = false;
+    
     private EdgeConverter edgeConverter = null;
 
     public EdgeConverter getEdgeConverter() {
@@ -64,7 +65,6 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
 	public EdgeView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 	}
-	
 
     @Override
     public boolean onTouch(View view, MotionEvent event) {
@@ -92,8 +92,9 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
             return;
         else
             try {
-                if (canvasRect == null)
+                if (canvasRect == null) {
                     canvasRect = canvas.getClipBounds();
+                }
 
                 /* draw the canvas onto the screen */
                 canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);

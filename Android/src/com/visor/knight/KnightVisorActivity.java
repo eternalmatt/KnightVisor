@@ -100,7 +100,7 @@ public class KnightVisorActivity extends SherlockFragmentActivity {
 
     final MenuItem.OnMenuItemClickListener soundMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
         public boolean onMenuItemClick(MenuItem item) {
-            if (sobelFragment.getEtherealDialpadInstalled()) {
+            if (sobelFragment.isEtherealDialpadInstalled()) {
 
                 /* flip volume_enabled */
                 volume_enabled = !volume_enabled;
