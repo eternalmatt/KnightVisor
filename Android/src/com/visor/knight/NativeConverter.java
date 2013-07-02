@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import android.graphics.Bitmap;
+import android.os.Build;
 
 public class NativeConverter extends EdgeConverter {
 
@@ -33,6 +34,10 @@ public class NativeConverter extends EdgeConverter {
     public Bitmap convertFrame(byte[] yuvFrame) {
 
         nativeProcessing(yuvFrame, width, height, intBuffer);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+        	//bug that seems localized to 4.2+
+        	intBuffer.rewind();
+        }
         bitmap.copyPixelsFromBuffer(intBuffer);
         return bitmap;
     }
