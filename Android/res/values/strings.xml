@@ -15,5 +15,8 @@
     <string name="menu_better">Better</string>
     <string name="takePicture">Take picture</string>
     <string name="jpeg_mime_type">image/jpeg</string>
-
+    <string name="ethereal_dialpad_menu_item">Sound</string>
+    <string name="camera_menu_item">Camera</string>
+    <string name="share_menu_item">Share</string>
+    
 </resources>

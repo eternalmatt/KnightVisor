@@ -1,12 +1,15 @@
 package com.visor.knight;
 
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -15,17 +18,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import as.adamsmith.etherealdialpad.dsp.ISynthService;
 
-public class SobelFragment extends Fragment implements ServiceConnection {
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+public class SobelFragment extends SherlockFragment implements ServiceConnection {
 
 	private final String TAG = getClass().getSimpleName();
-	//@InjectView(R.id.edgeView)		
-	EdgeView	edgeView;
-	//@InjectView(R.id.surfaceView)	
-	SurfaceView surfaceView;
+	private EdgeView edgeView;
+	private SurfaceView surfaceView;
 	
 	private SurfaceHolder surfaceHolder;
 	private CameraHandler cameraHandler;
 	private ISynthService synthService;
+	private MenuItem soundMenuItem, cameraMenuItem, shareMenuItem;
+    private boolean volume_enabled;
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }    
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,7 +63,6 @@ public class SobelFragment extends Fragment implements ServiceConnection {
         getActivity().bindService(synthServiceIntent, this, Context.BIND_AUTO_CREATE);
         cameraHandler.openCamera();
     }
-
     
     @Override
     public void onStop() {
@@ -58,42 +71,96 @@ public class SobelFragment extends Fragment implements ServiceConnection {
     	cameraHandler.releaseCamera();
     	getActivity().unbindService(this);
     }
-	
 
     public void onServiceConnected(ComponentName name, IBinder service) {
         synthService = ISynthService.Stub.asInterface(service);
-        if (edgeView != null) {
-        	edgeView.setSynthService(synthService);
-        	//TODO: update options menu
-        }
-    }
-
-    public void onServiceDisconnected(ComponentName name) {
-        synthService = null;
-        if (edgeView != null) {
-        	edgeView.setSynthService(null);
-        }
+        enableVolume(true);
     }
     
-    public boolean isEtherealDialpadInstalled() {
-    	return synthService != null;
+    public void onServiceDisconnected(ComponentName name) {
+        synthService = null;
+        enableVolume(false);
     }
     
     public void setSobelThresholdAsPercentage(int p) {
         edgeView.getEdgeConverter().setThreshold(150-p);
     }
-    
-    
-    public void nextCameraClicked() {
-    	cameraHandler.setToNextCamera();
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        final int with_text_if_room = MenuItem.SHOW_AS_ACTION_IF_ROOM 
+                                    | MenuItem.SHOW_AS_ACTION_WITH_TEXT;
+        
+        soundMenuItem = menu.add(R.string.ethereal_dialpad_menu_item);
+        soundMenuItem.setShowAsAction(with_text_if_room);
+        
+        if (Camera.getNumberOfCameras() > 1) {
+            cameraMenuItem = menu.add(R.string.camera_menu_item);
+            cameraMenuItem.setIcon(R.drawable.ic_menu_camera);
+            cameraMenuItem.setShowAsAction(with_text_if_room);
+        }
+        
+        shareMenuItem = menu.add(R.string.share_menu_item);
+        shareMenuItem.setIcon(R.drawable.ic_menu_share);
+        shareMenuItem.setShowAsAction(with_text_if_room);
     }
     
-    public void shareImageClicked() {
-    	edgeView.captureNextFrame();
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        if (item == soundMenuItem){
+            if (isEtherealDialpadInstalled()){
+                switchVolumeState();
+            } else {
+                showEtherealDialpadMarketAlert();
+            }
+        } else if (item == cameraMenuItem){
+            nextCameraClicked();
+        } else if (item == shareMenuItem){
+            shareImageClicked();
+        }
+        
+        return super.onOptionsItemSelected(item);
     }
     
-	public void enableVolume(boolean enableIt) {
-		edgeView.setSynthService(enableIt ? synthService : null);
-	}
+    private void switchVolumeState(){
+        volume_enabled = !volume_enabled;
+        soundMenuItem.setIcon(volume_enabled ? R.drawable.ic_volume : R.drawable.ic_volume_off);
+        enableVolume(volume_enabled);
+    }
     
+    private void showEtherealDialpadMarketAlert(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.alertTitle);
+        builder.setMessage(R.string.alertMessage);
+        builder.setPositiveButton(R.string.alertPositiveButton,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Uri url = Uri.parse(getString(R.string.etherealDialpadURL));
+                        Intent intent = new Intent(Intent.ACTION_VIEW, url);
+                        startActivity(intent);
+                    }
+                });
+        builder.setNegativeButton(R.string.alertNegativeButton, null);
+        builder.show();
+    }
+    
+    private boolean isEtherealDialpadInstalled() {
+        return synthService != null;
+    }
+    
+    private void nextCameraClicked() {
+        cameraHandler.setToNextCamera();
+    }
+    
+    private void shareImageClicked() {
+        edgeView.captureNextFrame();
+    }
+    
+    private void enableVolume(boolean enableIt) {
+        if (edgeView != null){
+            edgeView.setSynthService(enableIt ? synthService : null);
+        }
+        
+        soundMenuItem.setIcon(enableIt ? R.drawable.ic_volume : R.drawable.ic_volume_off);
+    }
 }
