@@ -11,23 +11,24 @@ import as.adamsmith.etherealdialpad.dsp.ISynthService;
 public class DialpadView extends View implements View.OnTouchListener {
 
     private ISynthService synthService = null;
-
+    
+    { /* class initializer */
+    	setOnTouchListener(this);
+    }
+    
     public DialpadView(Context context) {
-        super(context);
-        this.setOnTouchListener(this);
+    	super(context);
+    }
+    
+    public DialpadView(Context context, AttributeSet attrs) {
+    	super(context, attrs);
     }
 
     public DialpadView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        this.setOnTouchListener(this);
-    }
+		super(context, attrs, defStyle);
+	}
 
-    public DialpadView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        this.setOnTouchListener(this);
-    }
-
-    public ISynthService getSynthService() {
+	public ISynthService getSynthService() {
         return this.synthService;
     }
 

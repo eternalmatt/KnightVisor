@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import android.graphics.Bitmap;
+import android.os.Build;
 
 public class NativeConverter extends EdgeConverter {
 
@@ -18,21 +19,24 @@ public class NativeConverter extends EdgeConverter {
     public native void setLogarithmicTransform(boolean logarithmicTransform);
     public native void setSoftEdges(boolean softEdges);
     
-    private final IntBuffer intBuffer;
-    private final Bitmap bitmap;
+    private IntBuffer intBuffer;
+    private Bitmap bitmap;
     
-    public NativeConverter(int width, int height) {
-        super(width, height);
-        
-        final int length = width * height;
-        intBuffer = ByteBuffer.allocateDirect(length * 4).asIntBuffer();
+    @Override
+	protected void initialize(int width, int height) {
+        intBuffer = ByteBuffer.allocateDirect(width * height * 4).asIntBuffer();
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     }
 
     @Override
-    public Bitmap convertFrame(byte[] yuvFrame) {
+    public Bitmap convertFrame(final byte[] yuvFrame) {
 
-        nativeProcessing(yuvFrame, width, height, intBuffer);
+        nativeProcessing(yuvFrame, width, height, intBuffer); //the really important step.
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+        	//bug that seems localized to 4.2+
+        	intBuffer.rewind();
+        }
         bitmap.copyPixelsFromBuffer(intBuffer);
         return bitmap;
     }

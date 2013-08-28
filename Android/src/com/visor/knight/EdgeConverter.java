@@ -4,15 +4,24 @@ import android.graphics.Bitmap;
 
 public abstract class EdgeConverter {
     
-    protected final int width, height;
-    
-    public EdgeConverter(int width, int height){
-        this.width = width;
-        this.height = height;
+    public static EdgeConverter getDefaultConverter(int width, int height) {
+        EdgeConverter converter = new NativeConverter();
+        converter.setSize(width, height);
+        return converter;
     }
     
-    public static EdgeConverter getDefaultConverter(int width, int height) {
-        return new NativeConverter(width, height);
+    protected int width, height;
+    
+    public void setSize(int width, int height) {
+    	if (this.width != width || this.height != height) {
+    		this.width = width;
+    		this.height = height;
+    		initialize(width, height);
+    	}
+    }
+    
+    protected void initialize(int width, int height){
+    	//for sub classes
     }
 
     public abstract void setThreshold(int threshold);
@@ -24,6 +33,4 @@ public abstract class EdgeConverter {
     public abstract void setSoftEdges(boolean softEdges);
     
     public abstract Bitmap convertFrame(final byte yuvFrame[]);
-    
-    
 }

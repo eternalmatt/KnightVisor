@@ -75,7 +75,7 @@ public class SobelFragment extends Fragment implements ServiceConnection {
         }
     }
     
-    public boolean getEtherealDialpadInstalled() {
+    public boolean isEtherealDialpadInstalled() {
     	return synthService != null;
     }
     
