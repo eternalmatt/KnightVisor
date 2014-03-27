@@ -62,8 +62,8 @@ public class CameraHandler {
     
     public void releaseCamera() {
         if (surfaceHolderCallback != null) {
-            surfaceHolder.removeCallback(surfaceHolderCallback);
             surfaceHolderCallback.releaseCamera();
+            surfaceHolder.removeCallback(surfaceHolderCallback);
         }
         surfaceHolderCallback = null;
     }

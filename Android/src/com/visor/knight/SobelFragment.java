@@ -124,7 +124,6 @@ public class SobelFragment extends SherlockFragment implements ServiceConnection
     
     private void switchVolumeState(){
         volume_enabled = !volume_enabled;
-        soundMenuItem.setIcon(volume_enabled ? R.drawable.ic_volume : R.drawable.ic_volume_off);
         enableVolume(volume_enabled);
     }
     
@@ -133,13 +132,13 @@ public class SobelFragment extends SherlockFragment implements ServiceConnection
         builder.setTitle(R.string.alertTitle);
         builder.setMessage(R.string.alertMessage);
         builder.setPositiveButton(R.string.alertPositiveButton,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Uri url = Uri.parse(getString(R.string.etherealDialpadURL));
-                        Intent intent = new Intent(Intent.ACTION_VIEW, url);
-                        startActivity(intent);
-                    }
-                });
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    Uri url = Uri.parse(getString(R.string.etherealDialpadURL));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, url);
+                    startActivity(intent);
+                }
+            });
         builder.setNegativeButton(R.string.alertNegativeButton, null);
         builder.show();
     }

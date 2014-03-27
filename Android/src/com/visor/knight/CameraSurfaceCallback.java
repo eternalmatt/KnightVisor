@@ -1,5 +1,8 @@
 package com.visor.knight;
 
+import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
+import static android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT;
+
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -17,6 +20,7 @@ public final class CameraSurfaceCallback implements SurfaceHolder.Callback {
     private final Camera.PreviewCallback previewCallback;
     
     private Camera camera;
+    int deleteme[] = {CAMERA_FACING_FRONT,CAMERA_FACING_BACK};
 
     public CameraSurfaceCallback(Future<Camera> cameraFuture, PreviewCallback previewCallback) {
         this.cameraFuture = cameraFuture;
@@ -84,8 +88,9 @@ public final class CameraSurfaceCallback implements SurfaceHolder.Callback {
     }
 
     public void releaseCamera() {
-        if (camera == null)
+        if (camera == null) {
             return;
+        }
 
         try {
             camera.setPreviewDisplay(null);
