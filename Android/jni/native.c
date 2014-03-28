@@ -1,4 +1,4 @@
-#include <com_visor_knight_NativeConverter.h>
+#include <native.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
@@ -21,43 +21,43 @@ int color          = GREEN;
 
 /* REALLY REALLY UGLY FUNCTION NAMES TO GET USER INPUT FROM THE JAVA GUI */
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setMedianFiltering
+JNIEXPORT void JNICALL Java_com_visor_knight_converter_NativeConverter_setMedianFiltering
 (JNIEnv *env, jobject obj, jboolean on)
 {
     medianEnabled = on;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setThreshold
+JNIEXPORT void JNICALL Java_com_visor_knight_converter_NativeConverter_setThreshold
     (JNIEnv *env, jobject thiz, jint thresh)
 {
     threshold = thresh;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setGrayscaleOnly
+JNIEXPORT void JNICALL Java_com_visor_knight_converter_NativeConverter_setGrayscaleOnly
 (JNIEnv *env, jobject obj, jboolean gray)
 {
     grayscale = gray;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setAutomaticThreshold
+JNIEXPORT void JNICALL Java_com_visor_knight_converter_NativeConverter_setAutomaticThreshold
 (JNIEnv *env, jobject obj, jboolean autoT)
 {
     automaticT = autoT;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setLogarithmicTransform
+JNIEXPORT void JNICALL Java_com_visor_knight_converter_NativeConverter_setLogarithmicTransform
 (JNIEnv *env, jobject obj, jboolean on)
 {
     logEnabled = on;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setSoftEdges
+JNIEXPORT void JNICALL Java_com_visor_knight_converter_NativeConverter_setSoftEdges
 (JNIEnv *env, jobject obj, jboolean on)
 {
     softEdges = on;
 }
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setColor
+JNIEXPORT void JNICALL Java_com_visor_knight_converter_NativeConverter_setColor
     (JNIEnv *env, jobject thiz, jint userColor)
 {
     /* For some reason the colors get mixed up and we
@@ -76,7 +76,7 @@ JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_setColor
 
 /* the main image processing function that gets called by java */
 
-JNIEXPORT void JNICALL Java_com_visor_knight_NativeConverter_nativeProcessing
+JNIEXPORT void JNICALL Java_com_visor_knight_converter_NativeConverter_nativeProcessing
     (JNIEnv *env, jobject thiz, //these variables are in every JNI call
      
      /* the input byte[] camera frame, width, height, and output int[] buffer */

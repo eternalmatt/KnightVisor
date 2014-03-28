@@ -1,4 +1,4 @@
-package com.visor.knight;
+package com.visor.knight.camera;
 
 import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
 import static android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT;

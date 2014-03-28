@@ -1,5 +1,4 @@
-
-package com.visor.knight;
+package com.visor.knight.view;
 
 import android.content.Context;
 import android.os.RemoteException;
@@ -8,7 +7,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import as.adamsmith.etherealdialpad.dsp.ISynthService;
 
-public class DialpadView extends View implements View.OnTouchListener {
+class DialpadView extends View implements View.OnTouchListener {
 
     private ISynthService synthService = null;
     

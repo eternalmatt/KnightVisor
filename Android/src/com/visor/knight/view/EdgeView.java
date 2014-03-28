@@ -1,5 +1,4 @@
-
-package com.visor.knight;
+package com.visor.knight.view;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -15,6 +14,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.visor.knight.camera.PictureHandler;
+import com.visor.knight.converter.EdgeConverter;
 
 public class EdgeView extends DialpadView implements Camera.PreviewCallback, Camera.PictureCallback {
 

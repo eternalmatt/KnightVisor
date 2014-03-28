@@ -1,4 +1,4 @@
-package com.visor.knight;
+package com.visor.knight.activity;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -22,6 +22,9 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.visor.knight.R;
+import com.visor.knight.camera.CameraHandler;
+import com.visor.knight.view.EdgeView;
 
 public class SobelFragment extends SherlockFragment implements ServiceConnection {
 

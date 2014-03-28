@@ -1,4 +1,4 @@
-package com.visor.knight;
+package com.visor.knight.converter;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;

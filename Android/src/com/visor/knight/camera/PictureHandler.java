@@ -1,5 +1,4 @@
-
-package com.visor.knight;
+package com.visor.knight.camera;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,6 +12,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.visor.knight.R;
 
 public class PictureHandler {
 

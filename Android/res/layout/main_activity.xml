@@ -6,7 +6,7 @@
     
     <fragment
         android:id="@+id/sobel_fragment"
-        android:name="com.visor.knight.SobelFragment"
+        android:name="com.visor.knight.activity.SobelFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 	/>

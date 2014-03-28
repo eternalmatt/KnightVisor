@@ -1,5 +1,4 @@
-
-package com.visor.knight;
+package com.visor.knight.activity;
 
 import android.os.Bundle;
 import android.view.Window;
@@ -7,6 +6,7 @@ import android.view.WindowManager;
 import android.widget.SeekBar;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.visor.knight.R;
 
 public class KnightVisorActivity extends SherlockFragmentActivity {
 

@@ -1,10 +1,10 @@
-package com.visor.knight;
+package com.visor.knight.camera;
 
 import java.util.concurrent.Callable;
 
 import android.hardware.Camera;
 
-public class CallableCamera implements Callable<Camera>{
+class CallableCamera implements Callable<Camera>{
 
     final int cameraId;
     public CallableCamera(int cameraId){

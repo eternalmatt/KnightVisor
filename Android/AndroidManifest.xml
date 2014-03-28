@@ -18,7 +18,7 @@
         android:allowBackup="true"
          >
         <activity
-            android:name=".KnightVisorActivity"
+            android:name=".activity.KnightVisorActivity"
             android:theme="@style/Theme.Sherlock"
             android:icon="@drawable/ic_launcher"
             android:screenOrientation="landscape" >
@@ -33,7 +33,7 @@
         <!-- For the Ethereal Dialpad (if it is installed on user's device) -->
         <activity-alias
             android:name="android.app.alias"
-            android:targetActivity=".KnightVisorActivity"
+            android:targetActivity=".activity.KnightVisorActivity"
             android:icon="@drawable/ic_launcher"
             android:label="@string/dialpadDescription" >
             <intent-filter>

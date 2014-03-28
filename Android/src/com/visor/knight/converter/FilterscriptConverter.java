@@ -1,9 +1,12 @@
-package com.visor.knight;
+package com.visor.knight.converter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.renderscript.Allocation;
 import android.renderscript.RenderScript;
+
+import com.visor.knight.R;
+import com.visor.knight.ScriptC_filter;
 
 public class FilterscriptConverter extends EdgeConverter {
 
