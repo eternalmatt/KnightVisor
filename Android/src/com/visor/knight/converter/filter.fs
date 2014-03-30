@@ -51,7 +51,7 @@ point __attribute__((kernel)) sobel(const uint32_t x, const uint32_t y) {
 	  ;
     
     if (gm > threshold) {
-    	point p = { 0, gm, 0, 0xff };
+    	point p = color & (point){ gm, gm, gm, 255};
     	return p;
     } else {
     	return rsGetElementAt_uchar4(in, x, y);

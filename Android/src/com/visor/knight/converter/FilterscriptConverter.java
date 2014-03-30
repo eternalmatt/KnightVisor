@@ -83,9 +83,9 @@ public class FilterscriptConverter extends EdgeConverter {
     
     @Override 
     public void setColor(int color) {
-        final short r = (short) ((color & 0xFF000000) >> 6);
-        final short g = (short) ((color & 0x00FF0000) >> 4);
-        final short b = (short) ((color & 0x0000FF00) >> 2);
+        final short r = (short) ((color & 0xFF000000) >>> 24);
+        final short g = (short) ((color & 0x00FF0000) >>> 16);
+        final short b = (short) ((color & 0x0000FF00) >>> 8);
         script.set_color(new Short4(r, g, b, (short)255));
     }
     
