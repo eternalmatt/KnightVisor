@@ -11,13 +11,13 @@ public class NativeConverter extends EdgeConverter {
     /* everything native */
     static { System.loadLibrary("native"); }
     public native void nativeProcessing(byte[] f, int width, int height, IntBuffer output);
-    public native void setThreshold(int threshold);
-    public native void setColor(int color);
-    public native void setMedianFiltering(boolean medianFiltering);
-    public native void setGrayscaleOnly(boolean grayscaleOnly);
-    public native void setAutomaticThreshold(boolean automaticThreshold);
-    public native void setLogarithmicTransform(boolean logarithmicTransform);
-    public native void setSoftEdges(boolean softEdges);
+    @Override public native void setThreshold(int threshold);
+    @Override public native void setColor(int color);
+    @Override public native void setMedianFiltering(boolean medianFiltering);
+    @Override public native void setGrayscaleOnly(boolean grayscaleOnly);
+    @Override public native void setAutomaticThreshold(boolean automaticThreshold);
+    @Override public native void setLogarithmicTransform(boolean logarithmicTransform);
+    @Override public native void setSoftEdges(boolean softEdges);
     
     private IntBuffer intBuffer;
     private Bitmap bitmap;

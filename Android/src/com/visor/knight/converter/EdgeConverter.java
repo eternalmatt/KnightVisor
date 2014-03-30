@@ -6,8 +6,8 @@ import android.graphics.Bitmap;
 public abstract class EdgeConverter {
     
     public static EdgeConverter getDefaultConverter(Context ctx, int width, int height) {
-        EdgeConverter converter = new NativeConverter();
-        //EdgeConverter converter = new FilterscriptConverter(ctx);
+        //EdgeConverter converter = new NativeConverter();
+        EdgeConverter converter = new FilterscriptConverter(ctx);
         converter.setSize(width, height);
         return converter;
     }

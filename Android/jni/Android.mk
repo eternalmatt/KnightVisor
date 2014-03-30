@@ -4,6 +4,6 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := native
 LOCAL_SRC_FILES := native.c
-LOCAL_CFLAGS    += -O3 -fopenmp
+LOCAL_CFLAGS    += -Os -fopenmp
 
 include $(BUILD_SHARED_LIBRARY)

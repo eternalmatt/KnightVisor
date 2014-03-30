@@ -149,15 +149,9 @@ these definitions are so we can refer to a window like so:
         
         gm = (gx + gy) /2;
 
-        if (grayscale)
-        {
-            int a = f22;
-            background = (a << 0) | (a << 8) | (a << 16) | 0xFF000000;
-        }
-        else
-        {
-            background = TRANSPARENT;
-        }
+		background = grayscale
+				   ? (f22 << 0) | (f22 << 8) | (f22 << 16) | 0xFF000000
+				   : TRANSPARENT;
         
         edgeColor = softEdges ? (gm | (gm<<8) | (gm<<16)) & color : color;
         
