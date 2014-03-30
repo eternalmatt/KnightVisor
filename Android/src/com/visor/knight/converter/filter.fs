@@ -9,6 +9,9 @@ rs_allocation in;
 
 number width = 0;
 number height = 0;
+number threshold = 42;
+point color = { 0, 255, 0, 255 };
+bool soft = false;
 
 static inline bool outOfBounds(const number x, const number y) {
 	const number b = 1;
@@ -47,7 +50,7 @@ point __attribute__((kernel)) sobel(const uint32_t x, const uint32_t y) {
 	  , gm = (gx + gy) / 2
 	  ;
     
-    if (gm > 100) {
+    if (gm > threshold) {
     	point p = { 0, gm, 0, 0xff };
     	return p;
     } else {
