@@ -78,10 +78,8 @@ public class FilterscriptConverter extends EdgeConverter {
 	    out = Allocation.createTyped(rs, tb.create(), Allocation.USAGE_SCRIPT);
     }
 	
-	private void createScriptGroup(){
-        ScriptGroup.Builder b = new ScriptGroup.Builder(rs);
-        
-        List<Pair<KernelID, FieldID>> pairs = new ArrayList<Pair<KernelID,FieldID>>();
+	protected void createScriptGroup(){
+        final List<Pair<KernelID, FieldID>> pairs = new ArrayList<Pair<KernelID,FieldID>>();
         if (median){
             pairs.add(Pair.create(yuv.getKernelID(), medianScript.getFieldID_in()));
             pairs.add(Pair.create(medianScript.getKernelID_median(), script.getFieldID_in()));
@@ -89,6 +87,7 @@ public class FilterscriptConverter extends EdgeConverter {
             pairs.add(Pair.create(yuv.getKernelID(), script.getFieldID_in()));
         }
 
+        final ScriptGroup.Builder b = new ScriptGroup.Builder(rs);
         b.addKernel(script.getKernelID_sobel());
         for(Pair<KernelID, FieldID> pair : pairs){
             b.addKernel(pair.first);

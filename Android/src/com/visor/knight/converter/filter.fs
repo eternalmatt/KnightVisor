@@ -26,10 +26,7 @@ static inline pixel getElementAt(const number x, const number y) {
 point __attribute__((kernel)) sobel(const uint32_t x, const uint32_t y) {
 
 	if (outOfBounds(x,y)){
-		//rsDebug("out of bounds", x, y, width, height);
-		pixel p = getElementAt(x,y);
-		point po = {p,p,p,255};
-		return po;
+		return rsGetElementAt_uchar4(in, x, y);
 	} 
 
 	const pixel
@@ -89,5 +86,5 @@ point __attribute__((kernel)) median(uint32_t x, uint32_t y) {
 	}
 	
 	uint p = f[i];
-	return convert_uchar4((uint4){p,p,p,255});
+	return convert_uchar4((uint4){p,p,p,0});
 }
