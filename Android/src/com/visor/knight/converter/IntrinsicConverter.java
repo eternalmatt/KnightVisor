@@ -31,6 +31,7 @@ public class IntrinsicConverter extends EdgeConverter {
     private Allocation out;
     private Bitmap bitmap;
     private ScriptGroup scriptGroup;
+    private ScriptC_threshold threshold;
     
     public IntrinsicConverter(Context ctx) {
         this.rs = RenderScript.create(this.ctx = ctx);
@@ -53,9 +54,10 @@ public class IntrinsicConverter extends EdgeConverter {
         ScriptIntrinsicConvolve3x3 kernel = ScriptIntrinsicConvolve3x3.create(rs, outElement);
         kernel.setCoefficients(sobel);
 
-        ScriptC_threshold threshold = new ScriptC_threshold(rs, ctx.getResources(), R.raw.threshold);
+        threshold = new ScriptC_threshold(rs, ctx.getResources(), R.raw.threshold);
         threshold.set_color(green);
         threshold.set_threshold(42);
+        threshold.set_softEdges(false);
 
         final ScriptGroup.Builder builder = new ScriptGroup.Builder(rs);
         builder.addKernel(yuv.getKernelID());
@@ -98,10 +100,24 @@ public class IntrinsicConverter extends EdgeConverter {
         out = Allocation.createTyped(rs, tb.create(), Allocation.USAGE_SCRIPT);
     }
     
-    @Override public void setThreshold(int threshold) {}
-    @Override public void setColor(int color) {}
+    @Override
+    public void setThreshold(int threshold) {
+        this.threshold.set_threshold(threshold);
+    }
+    
+    @Override
+    public void setColor(int color) {
+        final short r = (short) ((color & 0xFF000000) >>> 24);
+        final short g = (short) ((color & 0x00FF0000) >>> 16);
+        final short b = (short) ((color & 0x0000FF00) >>> 8);
+        this.threshold.set_color(new Short4(r, g, b, (short)255));
+    }
+    
+    @Override public void setSoftEdges(boolean softEdges) {
+        this.threshold.set_softEdges(softEdges);
+    }
+    
     @Override public void setMedianFiltering(boolean medianFiltering) {}
-    @Override public void setSoftEdges(boolean softEdges) {}
     @Override public void setGrayscaleOnly(boolean grayscaleOnly) {}
     @Override public void setAutomaticThreshold(boolean automaticThreshold) {}
     @Override public void setLogarithmicTransform(boolean logarithmicTransform) {}
