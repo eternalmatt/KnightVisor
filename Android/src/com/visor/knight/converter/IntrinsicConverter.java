@@ -1,19 +1,16 @@
 package com.visor.knight.converter;
 
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.Script;
-import android.renderscript.ScriptGroup;
-import android.renderscript.ScriptIntrinsicConvolve3x3;
-import android.renderscript.ScriptIntrinsicYuvToRGB;
-import android.renderscript.Short4;
-import android.renderscript.Type;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptGroup;
+import android.support.v8.renderscript.ScriptIntrinsicConvolve3x3;
+import android.support.v8.renderscript.ScriptIntrinsicYuvToRGB;
+import android.support.v8.renderscript.Short4;
+import android.support.v8.renderscript.Type;
 
 import com.visor.knight.R;
 import com.visor.knight.ScriptC_color;
@@ -26,6 +23,7 @@ public class IntrinsicConverter extends EdgeConverter {
     
     private final Context ctx;
     private final RenderScript rs;
+    private final Element inElement;
     private final Element outElement;
     private Allocation in;
     private Allocation out;
@@ -36,6 +34,7 @@ public class IntrinsicConverter extends EdgeConverter {
     public IntrinsicConverter(Context ctx) {
         this.rs = RenderScript.create(this.ctx = ctx);
         outElement = Element.RGBA_8888(this.rs);
+        inElement = Element.createPixel(rs, Element.DataType.UNSIGNED_8, Element.DataKind.PIXEL_YUV);
     }
     
     @Override
@@ -67,16 +66,12 @@ public class IntrinsicConverter extends EdgeConverter {
         builder.addConnection(out.getType(), yuv.getKernelID(), color.getFieldID_in());
         builder.addConnection(out.getType(), color.getKernelID_root(), kernel.getFieldID_Input());
         builder.addConnection(out.getType(), kernel.getKernelID(), threshold.getFieldID_in());
-        yuv.setInput(in);//yuv is dumb.
+        yuv.setInput(in); //yuv is dumb. documentation is bad here.
         scriptGroup = builder.create();
         scriptGroup.setInput(yuv.getKernelID(), in);
         scriptGroup.setOutput(threshold.getKernelID_root(), out);
     }
     
-    public static ScriptGroup create(List<Script.KernelID> kernels, List<Script.FieldID> inputs, Allocation in, Allocation out){
-        return null;
-    }
-
     @Override
     public Bitmap convertFrame(final byte[] yuvFrame) {
         in.copyFrom(yuvFrame);
@@ -86,7 +81,7 @@ public class IntrinsicConverter extends EdgeConverter {
     }
 
     private void createIn(final int width, final int height) {
-        final Type.Builder tb = new Type.Builder(rs, Element.createPixel(rs, Element.DataType.UNSIGNED_8, Element.DataKind.PIXEL_YUV));
+        final Type.Builder tb = new Type.Builder(rs, inElement);
         tb.setX(width);
         tb.setY(height);
         tb.setYuvFormat(ImageFormat.NV21);
