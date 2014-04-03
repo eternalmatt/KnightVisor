@@ -35,8 +35,8 @@ public class SobelFragment extends SherlockFragment implements ServiceConnection
 	private SurfaceHolder surfaceHolder;
 	private CameraHandler cameraHandler;
 	private ISynthService synthService;
-	private MenuItem soundMenuItem, cameraMenuItem, shareMenuItem;
-    private boolean volume_enabled;
+	private MenuItem soundMenuItem, cameraMenuItem, shareMenuItem, edgesMenuItem;
+    private boolean volume_enabled, softEdges=true;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,6 +106,9 @@ public class SobelFragment extends SherlockFragment implements ServiceConnection
         shareMenuItem = menu.add(R.string.share_menu_item);
         shareMenuItem.setIcon(R.drawable.ic_menu_share);
         shareMenuItem.setShowAsAction(with_text_if_room);
+        
+        edgesMenuItem = menu.add(R.string.menu_softedges_true);
+        edgesMenuItem.setShowAsAction(with_text_if_room);
     }
     
     @Override
@@ -120,11 +123,19 @@ public class SobelFragment extends SherlockFragment implements ServiceConnection
             nextCameraClicked();
         } else if (item == shareMenuItem){
             shareImageClicked();
+        } else if (item == edgesMenuItem){
+            edgesMenuItemClicked();
         }
         
         return super.onOptionsItemSelected(item);
     }
     
+    private void edgesMenuItemClicked() {
+        softEdges = !softEdges;
+        edgesMenuItem.setTitle(softEdges ? R.string.menu_softedges_true : R.string.menu_softedges_false);
+        edgeView.setSoftEdges(softEdges);
+    }
+
     private void switchVolumeState(){
         volume_enabled = !volume_enabled;
         enableVolume(volume_enabled);

@@ -18,5 +18,7 @@
     <string name="ethereal_dialpad_menu_item">Sound</string>
     <string name="camera_menu_item">Camera</string>
     <string name="share_menu_item">Share</string>
+    <string name="menu_softedges_true">Soft</string>
+    <string name="menu_softedges_false">Rough</string>
     
 </resources>

@@ -57,7 +57,7 @@ public class IntrinsicConverter extends EdgeConverter {
         threshold = new ScriptC_threshold(rs, ctx.getResources(), R.raw.threshold);
         threshold.set_color(green);
         threshold.set_threshold(42);
-        threshold.set_softEdges(false);
+        threshold.set_softEdges(true);
 
         final ScriptGroup.Builder builder = new ScriptGroup.Builder(rs);
         builder.addKernel(yuv.getKernelID());

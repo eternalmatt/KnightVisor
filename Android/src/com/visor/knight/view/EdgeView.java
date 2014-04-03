@@ -166,4 +166,8 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
         Log.d(TAG, "Normal length=" + cameraPreview.length + ", got length=" + data.length);
     }
 
+    public void setSoftEdges(boolean softEdges) {
+        edgeConverter.setSoftEdges(softEdges);
+    }
+
 }
