@@ -20,8 +20,7 @@
         <activity
             android:name=".activity.KnightVisorActivity"
             android:theme="@style/Theme.Sherlock"
-            android:icon="@drawable/ic_launcher"
-            android:screenOrientation="landscape" >
+            android:icon="@drawable/ic_launcher" >
             
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
