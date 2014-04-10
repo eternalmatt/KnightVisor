@@ -5,7 +5,7 @@
     android:versionName="1.0.3" >
 
     <uses-sdk        android:targetSdkVersion="19"
-        			 android:minSdkVersion="8" />
+        			 android:minSdkVersion="9" />
     <uses-permission android:name="android.permission.CAMERA"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-feature    android:name="android.hardware.camera"
@@ -20,7 +20,8 @@
         <activity
             android:name=".activity.KnightVisorActivity"
             android:theme="@style/Theme.Sherlock"
-            android:icon="@drawable/ic_launcher" >
+            android:icon="@drawable/ic_launcher"
+            android:screenOrientation="landscape" >
             
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

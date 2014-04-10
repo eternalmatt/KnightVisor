@@ -3,6 +3,7 @@ package com.visor.knight.view;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -18,7 +19,7 @@ import android.view.View;
 import com.visor.knight.camera.PictureHandler;
 import com.visor.knight.converter.EdgeConverter;
 
-public class EdgeView extends DialpadView implements Camera.PreviewCallback, Camera.PictureCallback {
+public class EdgeView extends View implements Camera.PreviewCallback, Camera.PictureCallback, View.OnTouchListener {
 
 	private static final String TAG = EdgeView.class.getSimpleName();
     private final Paint frameRateText = new Paint();
@@ -54,6 +55,7 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
     	frameRateText.setTextSize(textSize);
     	setDrawingCacheEnabled(true);
     	setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+    	setOnTouchListener(this);
     }
     
 	public EdgeView(Context context) {
@@ -83,44 +85,44 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
             converter.setColor(color);
         }
 
-        /* Must call super for the DialpadView to intercept touch */
-        return super.onTouch(view, event);
+        return false;
     }
 
     @Override
+    @SuppressLint("DrawAllocation")
     protected void onDraw(Canvas canvas) {
 
-        if (cameraPreview == null || cameraPreviewLock.tryLock() == false)
+        if (cameraPreview == null || cameraPreviewLock.tryLock() == false) {
             return;
-        else
-            try {
-                if (canvasRect == null) {
-                    canvasRect = canvas.getClipBounds();
-                }
-
-                /* draw the canvas onto the screen */
-                canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);
-                canvas.drawText(String.valueOf(framesPerSecond), 0, textSize, frameRateText);
-
-                if (captureNextFrame) {
-                    captureNextFrame = false;
-                    PictureHandler.savePicture(getContext(), bitmap);
-                }
-
-                final long now = System.currentTimeMillis();
-                if (now - time > 1000) {
-                    framesPerSecond = frames;
-                    frames = 0;
-                    time = now;
-                } else {
-                    frames++;
-                }
-
-            } finally {
-                cameraPreviewLock.unlock();
+        } else try {
+            if (canvasRect == null) {
+                canvasRect = canvas.getClipBounds();
             }
+
+            /* draw the canvas onto the screen */
+            canvas.drawBitmap(bitmap, cameraRect, canvasRect, null);
+            canvas.drawText(String.valueOf(framesPerSecond), 0, textSize, frameRateText);
+
+            if (captureNextFrame) {
+                captureNextFrame = false;
+                PictureHandler.savePicture(getContext(), bitmap);
+            }
+
+            final long now = System.currentTimeMillis();
+            if (now - time > 1000) {
+                framesPerSecond = frames;
+                frames = 0;
+                time = now;
+            } else {
+                frames++;
+            }
+
+        } finally {
+            cameraPreviewLock.unlock();
+        }
     }
 
+    @Override
     public void onPreviewFrame(byte[] yuv, Camera camera) {
         if (cameraPreviewLock.tryLock() && yuv != null) {
             try {
@@ -161,6 +163,7 @@ public class EdgeView extends DialpadView implements Camera.PreviewCallback, Cam
         }
     }
 
+    @Override
     public void onPictureTaken(byte[] data, Camera camera) {
         this.captureNextFrame = true;
         Log.d(TAG, "Normal length=" + cameraPreview.length + ", got length=" + data.length);

@@ -11,6 +11,7 @@ class CallableCamera implements Callable<Camera>{
         this.cameraId = cameraId;
     }
     
+    @Override
     public Camera call() {
         return Camera.open(cameraId);
     }

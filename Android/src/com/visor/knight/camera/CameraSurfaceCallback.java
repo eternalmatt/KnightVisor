@@ -1,8 +1,5 @@
 package com.visor.knight.camera;
 
-import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;
-import static android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -20,19 +17,21 @@ public final class CameraSurfaceCallback implements SurfaceHolder.Callback {
     private final Camera.PreviewCallback previewCallback;
     
     private Camera camera;
-    int deleteme[] = {CAMERA_FACING_FRONT,CAMERA_FACING_BACK};
+    private boolean released = false;
 
     public CameraSurfaceCallback(Future<Camera> cameraFuture, PreviewCallback previewCallback) {
         this.cameraFuture = cameraFuture;
         this.previewCallback = previewCallback;
     }
     
+    @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
         try {
             camera = cameraFuture.get();
-            if (camera == null)
+            if (camera == null) {
                 return;
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
             return;
@@ -64,10 +63,13 @@ public final class CameraSurfaceCallback implements SurfaceHolder.Callback {
         camera.addCallbackBuffer(new byte[size.width * size.height * 4]);
         camera.setPreviewCallbackWithBuffer(previewCallback);
         camera.startPreview();
+        Log.d(TAG, "Camera acquired");
     }
 
-    public void surfaceCreated(SurfaceHolder holder) {}
-    public void surfaceDestroyed(SurfaceHolder holder) {}
+    @Override public void surfaceCreated(SurfaceHolder holder) {}
+    @Override public void surfaceDestroyed(SurfaceHolder holder) {
+        releaseCamera();
+    }
 
     /* helper function to set up the display */
     private static Camera.Size getBestPreviewSize(int width, int height,
@@ -87,23 +89,35 @@ public final class CameraSurfaceCallback implements SurfaceHolder.Callback {
         return result;
     }
 
+    /** necessary, absurd null checking in this method */
     public void releaseCamera() {
-        if (camera == null) {
+        if (released){
             return;
         }
-
+        
         try {
+            if (camera == null) {
+                camera = cameraFuture.get();// attempt to get camera out of Future
+                if (camera == null){
+                    return; 
+                }
+            }
+            
             camera.setPreviewDisplay(null);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         } finally {
-
             /* this is the sequence given on android.com */
             camera.stopPreview();
             camera.setPreviewCallback(null);
             camera.release();
             camera = null;
-            Log.d("Camera", "Camera has been released");
+            released = true;
+            Log.d(TAG, "Camera has been released");
         }
     }
 

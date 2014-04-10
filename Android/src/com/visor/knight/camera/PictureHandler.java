@@ -50,7 +50,7 @@ public class PictureHandler {
         MediaScannerConnection.scanFile(context, new String[] {
                 file.getAbsolutePath()
         }, null, new MediaScannerConnection.OnScanCompletedListener() {
-            public void onScanCompleted(String path, Uri uri) {
+            @Override public void onScanCompleted(String path, Uri uri) {
                 Intent shareIntent = new Intent();
                 shareIntent.setAction(Intent.ACTION_SEND);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
