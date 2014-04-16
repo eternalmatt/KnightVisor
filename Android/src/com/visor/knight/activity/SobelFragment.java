@@ -114,4 +114,8 @@ public class SobelFragment extends SherlockFragment {
     private void shareImageClicked() {
         edgeView.captureNextFrame();
     }
+
+	public void setKernel(int[][] nums) {
+		//todo lol
+	}
 }

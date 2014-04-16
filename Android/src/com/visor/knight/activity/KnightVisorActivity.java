@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.SeekBar;
 import as.adamsmith.etherealdialpad.dsp.ISynthService;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -34,15 +35,15 @@ public class KnightVisorActivity extends SherlockFragmentActivity implements Act
         setContentView(R.layout.main_activity);
         
         sobelFragment = (SobelFragment) this.getSupportFragmentManager().findFragmentById(R.id.sobel_fragment);
-
+        
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(false);
+        
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-	        getSupportActionBar().setCustomView(R.layout.seekbar);
-	        getSupportActionBar().setDisplayShowHomeEnabled(false);
-	        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        	actionBar.setCustomView(R.layout.seekbar);
+        	actionBar.setDisplayShowCustomEnabled(true);
 	
 	        final SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
-	        seekBar.setMax(150);
-	        seekBar.setProgress(75);
 	        seekBar.setOnSeekBarChangeListener(onSeekBarChangeListener);
         }
         
@@ -105,11 +106,6 @@ public class KnightVisorActivity extends SherlockFragmentActivity implements Act
 		}
 	};
 
-	@Override
-    public SeekBar.OnSeekBarChangeListener getOnSeekBarChangeListener() {
-		return onSeekBarChangeListener;
-	}
-
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         synthService = ISynthService.Stub.asInterface(service);
@@ -162,4 +158,14 @@ public class KnightVisorActivity extends SherlockFragmentActivity implements Act
     private void enableVolume(boolean enableIt) {
         soundMenuItem.setIcon(enableIt ? R.drawable.ic_volume : R.drawable.ic_volume_off);
     }
+    
+    @Override
+	public SeekBar.OnSeekBarChangeListener getOnSeekBarChangeListener() {
+		return onSeekBarChangeListener;
+	}
+
+	@Override
+	public void setKernel(int[][] nums) {
+		sobelFragment.setKernel(nums);
+	}
 }

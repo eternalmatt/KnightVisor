@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="threshold_max">150</integer>
+    <integer name="threshold_default">75</integer>
+</resources>
