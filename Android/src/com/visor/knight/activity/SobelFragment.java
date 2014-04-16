@@ -176,4 +176,8 @@ public class SobelFragment extends SherlockFragment implements ServiceConnection
         
         soundMenuItem.setIcon(enableIt ? R.drawable.ic_volume : R.drawable.ic_volume_off);
     }
+
+	public void setKernel(int[][] nums) {
+		//todo lol
+	}
 }

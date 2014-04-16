@@ -6,12 +6,13 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.visor.knight.R;
 
 public class KnightVisorActivity extends SherlockFragmentActivity implements ActivityDotH {
 
-    private SobelFragment sobelFragment;
+	private SobelFragment sobelFragment;
    
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -19,21 +20,16 @@ public class KnightVisorActivity extends SherlockFragmentActivity implements Act
         setContentView(R.layout.main_activity);
         
         sobelFragment = (SobelFragment) this.getSupportFragmentManager().findFragmentById(R.id.sobel_fragment);
-
+        
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(false);
+        
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-	        getSupportActionBar().setCustomView(R.layout.seekbar);
-	        getSupportActionBar().setDisplayShowHomeEnabled(false);
-	        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        	actionBar.setCustomView(R.layout.seekbar);
+        	actionBar.setDisplayShowCustomEnabled(true);
 	
 	        final SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
-	        seekBar.setMax(150);
-	        seekBar.setProgress(75);
-	        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-	            public void onStopTrackingTouch(SeekBar seekBar) {}
-	            public void onStartTrackingTouch(SeekBar seekBar) {}
-	            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-	            }
-	        });
+	        seekBar.setOnSeekBarChangeListener(onSeekBarChangeListener);
         }
 
         /* set up window so we get full screen */
@@ -49,8 +45,14 @@ public class KnightVisorActivity extends SherlockFragmentActivity implements Act
             sobelFragment.setSobelThresholdAsPercentage(progress);
 		}
 	};
-
+	
 	public SeekBar.OnSeekBarChangeListener getOnSeekBarChangeListener() {
 		return onSeekBarChangeListener;
 	}
+
+	@Override
+	public void setKernel(int[][] nums) {
+		sobelFragment.setKernel(nums);
+	}
+	
 }
