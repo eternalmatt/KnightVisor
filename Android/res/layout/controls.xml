@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <CheckBox
-        android:id="@+id/CheckBox01"
+        android:id="@+id/softEdgesCheckBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/soft_edges" />

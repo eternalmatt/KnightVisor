@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SeekBar;
 
@@ -16,6 +17,7 @@ public class ControlsFragment extends Fragment {
 
 	private SeekBar seekBar;
 	private EditText kernel[] = new EditText[9];
+	private CheckBox softEdges, medianFiltering;
 	private ActivityDotH activity;
 	
 	@Override
@@ -33,6 +35,10 @@ public class ControlsFragment extends Fragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		seekBar = (SeekBar) view.findViewById(R.id.seekBar);
 		seekBar.setOnSeekBarChangeListener(activity.getOnSeekBarChangeListener());
+		softEdges = (CheckBox) view.findViewById(R.id.softEdgesCheckBox);
+		softEdges.setOnClickListener(softEdgesClickListener);
+		medianFiltering = (CheckBox) view.findViewById(R.id.medianFilteringCheckBox);
+		medianFiltering.setOnClickListener(medianClickListener);
 		kernel = getKernelFromView(view);
 		for(EditText cell : kernel){
 			cell.addTextChangedListener(onKernelChangeListener);
@@ -68,5 +74,15 @@ public class ControlsFragment extends Fragment {
 			activity.setKernel(nums);
 		}
 	};
+	
+	private final View.OnClickListener softEdgesClickListener = new View.OnClickListener() {
+        @Override public void onClick(View v) {
+        }
+    };
+    
+    private final View.OnClickListener medianClickListener = new View.OnClickListener(){
+        @Override public void onClick(View v) {
+        }
+    };
 
 }

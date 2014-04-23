@@ -1,6 +1,5 @@
 package com.visor.knight.activity;
 
-import android.text.TextWatcher;
 import android.widget.SeekBar;
 
 public interface ActivityDotH {
