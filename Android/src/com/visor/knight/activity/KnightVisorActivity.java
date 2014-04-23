@@ -156,7 +156,9 @@ public class KnightVisorActivity extends SherlockFragmentActivity implements Act
     }
     
     private void enableVolume(boolean enableIt) {
-        soundMenuItem.setIcon(enableIt ? R.drawable.ic_volume : R.drawable.ic_volume_off);
+        if (soundMenuItem != null){
+            soundMenuItem.setIcon(enableIt ? R.drawable.ic_volume : R.drawable.ic_volume_off);
+        }
     }
     
     @Override

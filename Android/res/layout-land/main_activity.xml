@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
+    android:layout_height="match_parent"
+    android:baselineAligned="true"
+    android:orientation="horizontal" >
+
     <fragment
         android:id="@+id/controls_fragment"
         android:name="com.visor.knight.activity.ControlsFragment"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-    />
-    
+        android:layout_weight="1"
+        tools:layout="@layout/controls" />
+
     <fragment
         android:id="@+id/sobel_fragment"
         android:name="com.visor.knight.activity.SobelFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-	/>
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        tools:layout="@layout/main" />
 
 </LinearLayout>

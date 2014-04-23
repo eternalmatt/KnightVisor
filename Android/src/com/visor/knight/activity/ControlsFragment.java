@@ -50,7 +50,7 @@ public class ControlsFragment extends Fragment {
 		kernel[6] = (EditText) view.findViewById(R.id.kernel_cell_31);
 		kernel[7] = (EditText) view.findViewById(R.id.kernel_cell_32);
 		kernel[8] = (EditText) view.findViewById(R.id.kernel_cell_33);
-		return null;
+		return kernel;
 	}
 	
     private final TextWatcher onKernelChangeListener = new TextWatcher() {
